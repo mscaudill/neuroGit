@@ -1,0 +1,55 @@
+function trialStructSave(trials,user, tag)
+%This function is called by the StimGen gui and saves the trials structure
+%for a stimuli executed by the gui. It creates a filename that matches the
+%Scanziani Lab filenaming convention 'User_yyyy_MM_DD_Tags'
+% INPUTS:   Trials, a trial structure 
+%           User, user initials provided by the StimGen gui
+%           tag, a tag that should match the tag of given by DAQ controller
+%
+%           Note: user must supply a tag number. The visual stimulation PC
+%           has no access to this number. There is a builtin check in this
+%           function to ensure the user does not overwrite pre-existing
+%           trialstruct files
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% DEFAULTS FOR TESTING %%%%%%%%%%%%%%%%%%%%%%%%%%%
+%trials = [ 1 2 3];
+%user = 'MSC';
+%tag = 'test_1';
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Load dirInformation file containing the DAQPC raw data file address
+dirInformation;
+% Get the current time
+time=fix(clock);
+%get only date portion
+date=mat2str(time(1:3));
+date=strrep(date(2:end-1),' ','-');
+
+% Get the user specified save location from dirInformation
+saveDir = dirInfo.DaqPCDataLoc;
+
+% Check first whether the target file already exist so we can prompt usr 
+% with an overwrite warning
+
+% Get the structure of the save to directory
+s=dir(saveDir);
+% Get the names from these structures
+names={s(:).name};
+%create our target filename
+target= [user, '_', date,'_', tag, '_TrialsStruct','.mat'];
+% determine if filename already exist
+if any(strcmp(target,names))
+    answer = questdlg('The file already exist; OVERWRITE?',...
+        'Do you want to overwrite','Yes','No','No');
+    switch answer
+        case 'Yes'
+         save(fullfile(saveDir,target),'trials')
+        case 'No'
+           ME = MException('SaveFile:NO_OVERWRITE', ...
+             'USER: PLEASE SELECT A NEW TAG');
+          throw(ME);
+    end
+% If the file is not present in the deirectory then proceed with save
+else save(fullfile(saveDir,target),'trials');
+end
+

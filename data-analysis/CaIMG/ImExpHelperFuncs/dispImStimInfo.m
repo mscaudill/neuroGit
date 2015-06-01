@@ -1,0 +1,36 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%copyright (c) 2012  Matthew Caudill
+%
+%this program is free software: you can redistribute it and/or modify
+%it under the terms of the gnu general public license as published by
+%the free software foundation, either version 3 of the license, or
+%at your option) any later version.
+%
+%this program is distributed in the hope that it will be useful,
+%but without any warranty; without even the implied warranty of
+%merchantability or fitness for a particular purpose.  see the
+%gnu general public license for more details.
+%
+%you should have received a copy of the gnu general public license
+%along with this program.  if not, see <http://www.gnu.org/licenses/>.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [stimInfoString] = dispImStimInfo(stimFileName, triggerNumber)
+% dispImStimInfo is used in the ImExpMaker to display stimulus information 
+% within the data selection stage of gui processing  
+% INPUTS:                   STIMULUS FILE NAME, passed from the gui state
+% OUTPUTS:                  TRIGGERNUMBER, passed from the gui state
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%% CONSTRUCT FULLFILE NAME AND LOAD %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ImExpDirInformation;
+stimFileLoc = dirInfo.stimFileLoc;
+
+load(fullfile(stimFileLoc,stimFileName));
+
+% Use evalc to construct character array 
+stimInfoString = evalc('trials(triggerNumber)');
+stimInfoString(1:18)='';
+end
+
