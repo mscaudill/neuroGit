@@ -313,9 +313,10 @@ try
             centerGrating, [], [], [], [], glsl);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        %%%%%%%%%%%%%%% CONSTRUCT GAUSSIAN MASK TEXTURE %%%%%%%%%%%%%%%%%%%
-        % We now will create the circular gaussian aperture mask. We will
+        %%%%%%%%%%%%% CONSTRUCT 2 GAUSSIAN MASK TEXTURES %%%%%%%%%%%%%%%%%%
+        % We now will create two circular gaussian aperture masks. We will
         % set the alpha transparency value equal to the gaussian function
+        % centered at a radius equal to the outer grating and another mask
         % centered at a radius equal to the center grating. If the user
         % wishes not to have the gaussian mask they simply set the half
         % width to 0 degrees
@@ -323,8 +324,8 @@ try
         % make a 2-D matrix of gray values (note we add one along
         % each dimension so the mask will be centered about the x,y
         % grating position specified by the user)
-        gaussMask = ones(visibleSize+1,visibleSize+1,2)*grayPix;
-        
+        outerGaussMask = ones(visibleSize+1,visibleSize+1,2)*grayPix;
+        innerGaussMask = ones(visibleSize+1,visibleSize+1,2)*grayPix;
         % obtain all the coordinates of the mask using meshgrid and center
         % around the center of the monitor.
         [gaussMaskX, gaussMaskY] = meshgrid(-visibleSize/2:visibleSize/2,...
@@ -339,23 +340,35 @@ try
         % center of the monitor
         
         % set the gaussian width (full width at half max) in degrees
-        fwhm = trials(trial).Gaussian_Mask_FWHM;
+        outerFwhm = trials(trial).Outer_Gaussian_Mask_FWHM;
+        innerFwhm = trials(trial).Inner_Gaussian_Mask_FWHM;
         % calculate the standard deviation corresponding to this FWHM in
         % pixel units
-        sigma = fwhm/(2*sqrt(2*log(2)))*1/degPerPix;
+        outerSigma = outerFwhm/(2*sqrt(2*log(2)))*1/degPerPix;
+        innerSigma = innerFwhm/(2*sqrt(2*log(2)))*1/degPerPix;
         
         % set the center of the gaussian to be at the edge of the circular
-        % center grating
-        ro = (trials(trial).Center_Grating_Diameter*1/degPerPix)/2;
+        % outer grating and one at the edge of the inner circular grating
+        outerRo = (trials(trial).Mask_Outer_Diameter*1/degPerPix)/2;
+        innerRo = (trials(trial).Center_Grating_Diameter*1/degPerPix)/2;
         
         % Define the transparency to be opaque (255) at ro and drop off with
         % a standard deviation of sigma
-        gaussMask(:,:,2) = 255*...
-            exp(-(r-ro).^2/(2*sigma^2)).*(cos(theta).^2+sin(theta).^2);
+        outerGaussMask(:,:,2) = 255*...
+            exp(-(r-outerRo).^2/...
+                    (2*outerSigma^2)).*(cos(theta).^2+sin(theta).^2);
+                
+        innerGaussMask(:,:,2) = 255*...
+            exp(-(r-innerRo).^2/...
+                    (2*innerSigma^2)).*(cos(theta).^2+sin(theta).^2);
         
-        % Make the mask texture
-        gaussMaskTex{trial} = Screen('MakeTexture', w, gaussMask,[],[],...
-                                     [],[],glsl);
+        % Make the outer mask texture
+        outerGaussMaskTex{trial} = Screen('MakeTexture', w, ...
+                                        outerGaussMask,[],[],[],[],glsl);
+                                    
+        % make the inner mask texture
+        innerGaussMaskTex{trial} = Screen('MakeTexture', w, ...
+                                        innerGaussMask,[],[],[],[],glsl);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
     %%%%%%%%%%%%%%% OBTAIN GRATING PARAMS FROM TRIALSSTRUCT %%%%%%%%%%%%%%%
@@ -522,11 +535,11 @@ try
                             centerOrientation,[], [], [], [], [],...
                             [0 centerXOffset 0 0]);
                         
-                        % If the gaussian mask width option is chosen draw
-                        % it over the center
-                        if trials(trial).Gaussian_Mask_FWHM > 0;
+                        % If the inner gaussian mask width option is chosen
+                        % draw it over the center
+                        if trials(trial).Inner_Gaussian_Mask_FWHM > 0;
                          Screen('DrawTexture', w,...
-                            gaussMaskTex{trial},...
+                            innerGaussMaskTex{trial},...
                             gaussMaskSrcRect, gaussMaskDstRect,...
                             centerOrientation);
                         end
@@ -551,11 +564,20 @@ try
                             centerDstRect, centerOrientation,...
                             [], [], [], [], [], [0 centerXOffset 0 0]);
                         
-                        % If the gaussian mask width option is chosen draw
-                        % it over the center
-                        if trials(trial).Gaussian_Mask_FWHM > 0;
+                        % If the outer gaussian mask width option is chosen
+                        % draw it 
+                        if trials(trial).Outer_Gaussian_Mask_FWHM > 0;
                          Screen('DrawTexture', w,...
-                            gaussMaskTex{trial},...
+                            outerGaussMaskTex{trial},...
+                            gaussMaskSrcRect, gaussMaskDstRect,...
+                            centerOrientation);
+                        end
+                        
+                        % If the inner gaussian mask width option is chosen
+                        % draw it 
+                        if trials(trial).Inner_Gaussian_Mask_FWHM > 0;
+                         Screen('DrawTexture', w,...
+                            innerGaussMaskTex{trial},...
                             gaussMaskSrcRect, gaussMaskDstRect,...
                             centerOrientation);
                         end
@@ -582,9 +604,18 @@ try
                         
                         % If the gaussian mask width option is chosen draw
                         % it over the center
-                        if trials(trial).Gaussian_Mask_FWHM > 0;
+                        if trials(trial).Outer_Gaussian_Mask_FWHM > 0;
                          Screen('DrawTexture', w,...
-                            gaussMaskTex{trial},...
+                            outerGaussMaskTex{trial},...
+                            gaussMaskSrcRect, gaussMaskDstRect,...
+                            centerOrientation);
+                        end
+                        
+                        % If the inner gaussian mask width option is chosen
+                        % draw it 
+                        if trials(trial).Inner_Gaussian_Mask_FWHM > 0;
+                         Screen('DrawTexture', w,...
+                            innerGaussMaskTex{trial},...
                             gaussMaskSrcRect, gaussMaskDstRect,...
                             centerOrientation);
                         end
@@ -613,9 +644,9 @@ try
                         
                         % If the gaussian mask width option is chosen draw
                         % it over the center
-                        if trials(trial).Gaussian_Mask_FWHM > 0;
+                        if trials(trial).Outer_Gaussian_Mask_FWHM > 0;
                          Screen('DrawTexture', w,...
-                            gaussMaskTex{trial},...
+                            outerGaussMaskTex{trial},...
                             gaussMaskSrcRect, gaussMaskDstRect,...
                             centerOrientation);
                         end
@@ -710,7 +741,8 @@ try
     Screen('Close', centerGratingTex{trial})
     Screen('Close', surroundGratingTex{trial})
     Screen('Close', circMaskTex{trial})
-    Screen('Close', gaussMaskTex{trial})
+    Screen('Close', outerGaussMaskTex{trial})
+    Screen('Close', innerGaussMaskTex{trial})
     end % End of trials loop
     
     % Restore normal priority scheduling in case something else was set
