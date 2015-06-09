@@ -220,10 +220,10 @@ if ~isempty(fieldnames(params))
         
         trial_arrays = reshape(rotated_trial_arrays(:),nColumns,[])';
         
-        % create a binary LED array to append to trials array (LED is ON
+        % create a binary LED array to append to trials array (LED is OFF
         % if the trial is odd
         binaryArray = ones(1,size(trial_arrays,1));
-        binaryArray(1:2:end) = 1;
+        binaryArray(1:2:end) = 0;
         % append to the last column of trial_arrays
         trial_arrays = [trial_arrays, binaryArray'];
     end
