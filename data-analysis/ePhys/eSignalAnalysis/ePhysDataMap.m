@@ -108,8 +108,8 @@ defaultRunState = 2;
 addParamValue(p, 'runState', defaultRunState,@isnumeric)
 
 % now add the LED condition that we want in the map, defaults to no LED
-defaultLedCond = false;
-addParamValue(p, 'ledCond', defaultLedCond, @islogical)
+defaultLedCond = 0;
+addParamValue(p, 'ledCond', defaultLedCond, @(x) ismember(x,[0,1,2]));
 
 % add the parameter dataOffset (default is 0mV/pA)
 defaultDataOffset = 0; 

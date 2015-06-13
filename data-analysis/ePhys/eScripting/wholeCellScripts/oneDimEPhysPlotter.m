@@ -140,7 +140,7 @@ fullSignalMatrices = cellfun(@(x,y) vertcat(x,y),...
 fullMeanSigs = cellfun(@(y) [y;deadTimeSig], meanSignals,...
                         'Uniformout',0);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-assignin('base','fullMeanSignals',fullMeanSigs)
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PLOTTING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -160,7 +160,7 @@ for key = 1:numel(fullSignalMatrices)
     
     time = ((key-1)*DataPoints+1:key*DataPoints)/...
             (samplingFreq)+timeShiftArray(key);
-
+    
     % now plot the mean of the individual trials
     plot(signalAxes, time,fullMeanSigs{key},'Color',[0,0,0],'LineWidth',0.5)
     hold on
