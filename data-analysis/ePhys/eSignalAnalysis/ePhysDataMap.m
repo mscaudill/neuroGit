@@ -207,8 +207,8 @@ end
 % structure. If Led_Condition is not a field of the stimulus struct,
 % meaning LED was never activated then we set the ledConditions array to
 % [].
-if isfield(stimulus,'Led_Condition')
-    ledConditions = logical([stimStruct(:,:).Led_Condition]);
+if isfield(stimulus,'Led')
+    ledConditions = logical([stimStruct(:,:).Led]);
 else
     ledConditions = [];
 end
@@ -231,7 +231,6 @@ if runState ~=2 && ~isempty(ledConditions)
 %CASE 2: RUNNING IS KEEP ALL AND LED WAS SHOWN
 elseif runState == 2 && ~isempty(ledConditions)
     filterLogical = (ledConditions == ledCond);
-
 % CASE 3: RUNNING = 0 OR 1 AND NO LED WAS SHOWN    
 elseif runState ~=2 && isempty(ledConditions)
     filterLogical = (runLogical == runState);

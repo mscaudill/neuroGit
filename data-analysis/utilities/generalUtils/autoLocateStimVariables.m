@@ -44,7 +44,7 @@ possibleVariables = stimFields(numStimVals > 1);
 % We are now going to create an exclusions list for parameters that will
 % always have more than one value but were not varied. For example the
 % stimulusType and timing
-excluders = {'Stimulus_Type', 'Timing'};
+excluders = {'Stimulus_Type', 'Timing', 'Initialization_Screen', 'Led'};
 
 % Now use setDiff to remove these from the possible variables
 stimVariables = setdiff(possibleVariables, excluders);
