@@ -85,7 +85,8 @@ horzSpace = p.Results.horzSpace;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Load pertinent substructures from a raw experiment and extract from cell
 % array.
-loadedExpCell = multiEexpLoader('raw',{'data','stimulus','behavior',...
+[loadedExpCell, ExpName] = multiEexpLoader('wholeCell',...
+                                        {'data','stimulus','behavior',...
                                         'fileInfo','spikeIndices'});
 
 Exp = loadedExpCell{1};
@@ -364,9 +365,11 @@ set(gca, 'box','off')
 set(gca,'children',flipud(get(gca,'children')))
 
 %set the figure position and size
-set(signalAxes, 'Units', 'normalized', 'Position', [0.055 0.07 .92 .90])
+set(signalAxes, 'Units', 'normalized', 'Position', [0.055 0.07 .92 .8])
 
 set(gcf,'position',[293 528 1000 420]);
+
+title(ExpName)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% SET AXIS LABELS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % set the Y Label
