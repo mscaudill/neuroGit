@@ -7,7 +7,7 @@ function oneDimEPhysPlotterII(varargin)
 %                                          non-running trials, 1 is running
 %                                          trials and 2 is all trials to be
 %                                          plotted
-%                          led:            a numeric 0, 1 or 2. Zero means
+%                          ledTpPlot:      a numeric 0, 1 or 2. Zero means
 %                                          plot only control trials. One
 %                                          means plot only Led trials. Two
 %                                          means plot both types (default)
@@ -254,11 +254,14 @@ deadTime = floor(numStimPoints-numAcquiredPoints);
 % construct our deadTime signal
 deadTimeSig = NaN*ones(deadTime,1);
 
-% add the deadTimeSig to the meanSignals
+% add the deadTimeSig to the meanSignals and zeroMean the signals
 for map = 1:numel(meanSignals)
     if ~isempty(meanSignals{map})
         meanSignals{map} = cellfun(@(x) [x;deadTimeSig],...
                                    meanSignals{map},'UniformOut',0);
+        meanSignals{map} = cellfun(@(x) zeroMean(x,samplingFreq,...
+                                   [1/samplingFreq, .100]),...
+                                    meanSignals{map},'UniformOut',0);
     end
 end
 

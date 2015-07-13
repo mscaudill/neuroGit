@@ -1,3 +1,11 @@
+function [ zeroMeanedSignal ] = zeroMean( signal, varargin )
+%ZEROMEAN takes an input signal and zero means the signal
+% INPUTS      : n-element sequence of points
+%           
+%      VARARGIN
+%               : samplingFreq, sampling Frequency of data
+%               : zeroingTime, time over whcih to compute the mean dc offset
+% OTPUTS     : zero mean of input signal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %copyright (c) 2012  Matthew Caudill
 %
@@ -15,12 +23,31 @@
 %along with this program.  if not, see <http://www.gnu.org/licenses/>.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ zeroMeanedSignal ] = zeroMean( signal )
-%ZEROMEAN takes an input signal and zero means the signal
-%INPUTS     arbitrary input signal
-%Outputs    zero mean of input signal
-
-zeroMeanedSignal=signal-mean(signal(:));
-
+% We perform a test of the number of inputs. If one then zeromean using
+% the entire signal, If three use only the specified time interval as the
+% dc offset. If anything else throw error.
+switch nargin
+    case 1 
+        zeroMeanedSignal=signal-mean(signal(:));
+    case 3
+        % Obtain the sampling frequency and validate is scalar
+        samplingFreq = varargin{1};
+        validateattributes(samplingFreq,{'numeric'} ,{'scalar'})
+        
+        % obtain the times over which to compute offset and validate is
+        % 2-el vector
+        zeroingTime = varargin{2};
+        validateattributes(zeroingTime,{'numeric'} ,{'size',[1,2]})
+        
+        % calculate zeroMeanedSignal
+        zeroTime = samplingFreq*(zeroingTime(1):zeroingTime(2));
+        zeroMeanedSignal=signal-mean(signal(zeroTime));
+    
+    otherwise
+        % if the user enters anything other than one or three inputs throw
+        % error
+        error('MathUtiles:zeroMean: requires one or three inputs')
+end
+    
 end
 
