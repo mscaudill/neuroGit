@@ -136,6 +136,18 @@ state.stimFileNames = stimFileNames;
 % Create Exp Structure
 Exp = electroExpCreateFunc(state);
 
+% Make a name for the exp
+% split the stimFileName on the underscores returning an allStrings
+% cell array
+allStrings = regexp(stimFileNames{1},'_', 'split');
+% obtain the date
+date = allStrings{2};
+% obtain the location and expType identifier
+locExpType = allStrings{3};
+
+defaultName =...
+    [date,'_',locExpType,'_','electroExp','.mat'];
+
 if strcmp(expType,'ca')
     oneDimFiringRatePlot(Exp)
 end
@@ -143,6 +155,8 @@ end
 if strcmp(expType,'wc')
     % call oneDimEphysPlotter
     oneDimEPhysPlotter(Exp,stimVariable,'removeSpikes',removeSpikes)
+    % add the title to the plotter TO DO FIX THIS ITS MESSY
+    title(defaultName)
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
