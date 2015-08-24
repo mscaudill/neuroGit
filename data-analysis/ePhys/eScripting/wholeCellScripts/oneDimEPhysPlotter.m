@@ -22,7 +22,7 @@ function oneDimEPhysPlotter(exp,stimVariable,varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% CALL EXP LOADER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if isempty(exp)
-    loadedExpCell = multiEexpLoader('raw',{'data','stimulus','behavior',...
+    [loadedExpCell,ExpName] = multiEexpLoader('raw',{'data','stimulus','behavior',...
                                         'fileInfo','spikeIndices'});
 
     Exp = loadedExpCell{1};
@@ -220,7 +220,7 @@ set(gca, 'box','off')
 set(gca,'children',flipud(get(gca,'children')))
 
 %set the figure position and size
-set(signalAxes, 'Units', 'normalized', 'Position', [0.055 0.07 .92 .90])
+set(signalAxes, 'Units', 'normalized', 'Position', [0.055 0.07 .92 .80])
 
 set(gcf,'position',[293 528 1000 420]);
 
