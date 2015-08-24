@@ -23,28 +23,28 @@ function [ zeroMeanedSignal ] = zeroMean( signal, varargin )
 %along with this program.  if not, see <http://www.gnu.org/licenses/>.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% We perform a test of the number of inputs. If one then zeromean using
-% the entire signal, If three use only the specified time interval as the
-% dc offset. If anything else throw error.
-switch nargin
-    case 1 
+% We perform a test of the number of variable inputs. If one then zeromean
+% using the entire signal, If 4 use only the specified time interval as
+% the dc offset. If anything else throw error.
+switch numel(varargin)
+    case 0 
         zeroMeanedSignal=signal-mean(signal(:));
-    case 3
+    case 4
         % Obtain the sampling frequency and validate is scalar
-        samplingFreq = varargin{1};
+        samplingFreq = varargin{2};
         validateattributes(samplingFreq,{'numeric'} ,{'scalar'})
         
         % obtain the times over which to compute offset and validate is
         % 2-el vector
-        zeroingTime = varargin{2};
+        zeroingTime = varargin{4};
         validateattributes(zeroingTime,{'numeric'} ,{'size',[1,2]})
         
         % calculate zeroMeanedSignal
-        zeroTime = samplingFreq*(zeroingTime(1):zeroingTime(2));
+        zeroTime = floor(samplingFreq*(zeroingTime(1):zeroingTime(2)));
         zeroMeanedSignal=signal-mean(signal(zeroTime));
     
     otherwise
-        % if the user enters anything other than one or three inputs throw
+        % if the user enters anything other than zero or 4 inputs throw
         % error
         error('MathUtiles:zeroMean: requires one or three inputs')
 end
