@@ -260,8 +260,9 @@ for map = 1:numel(meanSignals)
     if ~isempty(meanSignals{map})
         meanSignals{map} = cellfun(@(x) [x;deadTimeSig],...
                                    meanSignals{map},'UniformOut',0);
-        meanSignals{map} = cellfun(@(x) zeroMean(x,samplingFreq,...
-                                   [1/samplingFreq, .100]),...
+        meanSignals{map} = cellfun(@(x) zeroMean(x,'samplingFreq',...
+                                    samplingFreq,...
+                                   'zeroingTime',[1/samplingFreq, .100]),...
                                     meanSignals{map},'UniformOut',0);
     end
 end
@@ -280,7 +281,7 @@ timeShiftArray = [0:numKeys-1]*timeRem/samplingFreq;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PLOTTING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Create a new figure by adding to the current number of figures
-numFigs = sum(findall(0,'type','figure'));
+numFigs = numel(findall(0,'type','figure'));
 figure(numFigs+1)
 %Create an axes to the figure
 signalAxes = axes;
