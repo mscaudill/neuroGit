@@ -176,7 +176,7 @@ DRbyR = bsxfun(@rdivide,evokedStack,avgPreStimFrame);
 
 avgEvokedReflectanceFrame = bsxfun(@rdivide,avgEvokedFrame,avgPreStimFrame);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+assignin('base','avgEvokedReflectanceFrame',avgEvokedReflectanceFrame)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PLOTTING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
