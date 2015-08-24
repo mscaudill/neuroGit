@@ -36,14 +36,16 @@ function [trials] = trialStruct( stimType, table)
 %%%% TESTING INPUT TABLE (MSC 4-3-12)
 % if nargin<1
 %   table = {'Spatial Frequency (cpd)', 0.04, .04, 0.04;...
-%               'Temporal Frequency (cps)', 5, 1, 1;...
-%               'Contrast (start,end,numsteps)', .2, .2, .2;...
-%               'Orientation', 0, 30, 0;...
-%               'Timing (wait,duration,delay) (s)', 1, 1, 1;...
-%               'Blank', 0, [], []; 
-%               'Randomize', 0, [], [];...
+%               'Temporal Frequency (cps)', 3, 1, 3;...
+%               'Contrast (start,end,numsteps)', 1, 1, 1;...
+%               'Orientation', 0, 30, 330;...
+%               'Timing (delay,duration,wait) (s)', 1, 2, 1;...
+%               'Blank', 1, [], [];... 
+%               'Randomize', 1, [], [];...
 %               'Interleave', 1, [], [];...
-%               'Repeats', 0, [], []};
+%               'Interleave Timing', 1, 2, 10;...
+%               'Repeats', 0, [], [];...
+%               'Initialization Screen (s)', 5, [], []};
 %    stimType = 'Full-field Grating';
 %   trials = trialStruct(stimType, table);
 % end
@@ -91,6 +93,10 @@ for i = 1:size(table,1)
     % Check if row is the timing row if so add to constants structure    
     elseif strcmp(fieldname{i},'Timing')
         constants.(fieldname{i}) = horzcat(table{i,2:4});
+        
+    elseif strcmp(fieldname{i}, 'Interleave_Timing')
+        constants.(fieldname{i}) = horzcat(table{i,2:4});
+        interleaveTiming = horzcat(table{i,2:4});
         
     % Check number of elements in the row if less than 2 add to constants
     elseif numel(cell2mat(table(i,2:end))) <= 2 % 2 element rows
@@ -269,6 +275,14 @@ for i=1:numel(constant_fields)
                                     deal(constants.(constant_fields{i}));
 end
 
+% If the trials have been interleaved then the timing on the interleaved
+% trials may be different than the timing of the control trials we update
+% that timing now. If the trial is ODD we use the standard timing and if
+% the trial is EVEN we ust the interleave timing
+if constants.Interleave == 1
+    [trials(2:2:end).Timing] = deal(interleaveTiming);
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%% ADD STIMTYPE TO TRIAL STRUCTURE %%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -286,6 +300,10 @@ end
 % stimType appears first and all other fields appear in the order in which
 % they arrive in from the Gui table
 trials = orderfields(trials, ['Stimulus_Type',fieldname]);
+
+% clean up the trials structure by removing unneccessary fields
+% remove the interleave timing field since its values are stored in timing
+trials = rmfield(trials, 'Interleave_Timing');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%% REPEAT CONSTANT TRIAL STRUCTURE %%%%%%%%%%%%%%%%%%%%%%

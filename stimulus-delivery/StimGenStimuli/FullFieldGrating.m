@@ -151,14 +151,6 @@ try
     dstRect=[0 0 visibleSize visibleSize];
     %center the rectangle to the screen
     dstRect=CenterRect(dstRect, screenRect);
-
-%%%%%%%%%%%%%%%%%%%% GET STIMULUS TIMING INFORMATION %%%%%%%%%%%%%%%%%%%%%%
-    
-    % The wait, duration, and delay are stored in trials structure. They
-    % are the same for all trials so just get timing info from 1st trial
-    delay = trials(1).Timing(1);
-    duration = trials(1).Timing(2);
-    wait = trials(1).Timing(3);
     
 %%%%%%%%%%%%%%%%%%%%%% DRAW PRESTIM GRAY SCREEN %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We call the function stimInitScreen to draw a screen to the window before
@@ -190,6 +182,14 @@ stimInitScreen(w,trials(1).Initialization_Screen,grayPix,ifiDuration)
             break;
         end
        n=0; % This is a counter to shift our grating on each redraw
+       
+%%%%%%%%%%%%%%%%%%%% GET STIMULUS TIMING INFORMATION %%%%%%%%%%%%%%%%%%%%%%
+    % The wait, duration, and delay are stored in trials structure. They
+    % may vary over the trials if an LED was shown so get them for each
+    % trial
+    delay = trials(trial).Timing(1);
+    duration = trials(trial).Timing(2);
+    wait = trials(trial).Timing(3);
         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%% CONSTRUCT STIMULUS TEXTURES %%%%%%%%%%%%%%%%%%%%%%%%%%

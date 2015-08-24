@@ -153,15 +153,6 @@ try
     waitframes = 1; %I expect most new computers can handle updates at ifi
     ifiDuration = waitframes*ifi;
     
-
-%%%%%%%%%%%%%%%%%%%% GET STIMULUS TIMING INFORMATION %%%%%%%%%%%%%%%%%%%%%%
-    
-    % The wait, duration, and delay are stored in trials structure. They
-    % are the same for all trials so just get timing info from 1st trial
-    delay = trials(1).Timing(1);
-    duration = trials(1).Timing(2);
-    wait = trials(1).Timing(3);
-    
     %%%%%%%%%%%%%%%%%%%%%% DRAW PRESTIM GRAY SCREEN %%%%%%%%%%%%%%%%%%%%%%%
     % We call the function stimInitScreen to draw a screen to the window
     % before the stimulus appears to allow for any adaptation that is need
@@ -193,6 +184,13 @@ try
         end
         
          n=0;        % This is a counter to shift our grating on each redraw
+         
+         %%%%%%%%%%% GET STIMULUS TIMING INFORMATION %%%%%%%%%%%%%%%%%%%%%%
+    
+         % The wait, duration, and delay are stored in trials structure.
+         delay = trials(trial).Timing(1);
+         duration = trials(trial).Timing(2);
+         wait = trials(trial).Timing(3);
     
         %%%%%%%%%%%%%%%%%%% CONSTRUCT SURROUND TEXTURE %%%%%%%%%%%%%%%%%%%%
         % We start by constructing a surround grating texture (note 
