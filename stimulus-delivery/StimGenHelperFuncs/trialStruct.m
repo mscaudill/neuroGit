@@ -303,7 +303,9 @@ trials = orderfields(trials, ['Stimulus_Type',fieldname]);
 
 % clean up the trials structure by removing unneccessary fields
 % remove the interleave timing field since its values are stored in timing
-trials = rmfield(trials, 'Interleave_Timing');
+if isfield(trials,'Interleave_Timing')
+    trials = rmfield(trials, 'Interleave_Timing');
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%% REPEAT CONSTANT TRIAL STRUCTURE %%%%%%%%%%%%%%%%%%%%%%

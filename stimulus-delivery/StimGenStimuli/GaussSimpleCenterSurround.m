@@ -1,4 +1,4 @@
-function SimpleCenterSurround(trials)
+function GaussSimpleCenterSurround(trials)
 % simpleCenterSurroundV2 draws two concentric gratings to the screen with
 % parameters defined by the trials array structure input
 
@@ -7,6 +7,7 @@ function SimpleCenterSurround(trials)
 % Written by MSC 3-12-13
 % Modified by:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %copyright (c) 2012  Matthew Caudill
 %
@@ -27,13 +28,14 @@ function SimpleCenterSurround(trials)
 %%%%%%%%%%%%%%%%%%%%%% DEFAULTS FOR TESTING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %UNCOMMENT THIS SECTION FOR RUNNING STIMULUS AS STAND ALONE; COMMENT ABOVE
 %CONFLICTING FUNCTION 
-%  function [trials] = SimpleCenterSurround(stimType,table)
+%  function [trials] = SimpleCenterSurroundV2(stimType,table)
 %  if nargin<1
 %      table = {'Surround Spatial Frequency (cpd)', 0.04, .04, 0.04;...
 %               'Center Spatial Frequency (cpd)', 0.04, .04, 0.04;...
 %               'Surround Temporal Frequency (cps)', 3, 1, 3;...
 %               'Center Temporal Frequency (cps)', 3, 1, 3;...
-%               'Mask Outer Diameter (deg)', 30, 1, 30;...
+%               'Mask Outer Diameter (deg)', 60, 1, 60;...
+%               'Gaussian Mask FWHM (deg)', 5, [], [];...
 %               'Center Grating Diameter (deg)', 30, [], [];
 %               'Surround Contrast', 1, 1, 1;...
 %               'Center Contrast', 1, 1, 1;...
@@ -44,16 +46,15 @@ function SimpleCenterSurround(trials)
 %               'Blank', 0, [], [];... 
 %               'Randomize', 0, [], [];...
 %               'Interleave', 0, [], [];
-%               'Repeats', 0, [], [];...
-%               'Initialization Screen',2,[],[];...
-%               'Interleave Timing',1, 2, 10};
-%  stimType = 'Simple Center-surround Grating';
+%               'Repeats', 0, [], []};
+%  stimType = 'GaussSimpleCenterSurround';
 %     
 %  end
 %  trials = trialStruct(stimType, table);
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
-  % Get monitor info from monitorInformation located in RigSpecificInfo dir.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%% OBTAIN RIG SPECIFIC MONITOR INFORMATION %%%%%%%%%%%%%%%%%
+% Get monitor info from monitorInformation located in RigSpecificInfo dir.
 % This structure contains all the pertinent monitor information we will
 % need such as screen size and appropriate conversions from pixels to
 % visual degrees
@@ -117,7 +118,7 @@ try
     % HIDE CURSOR FROM SCREEN
     HideCursor;
     % OPEN A SCREEN WITH A BG COLOR OF GRAY (RETURN POINTER W)
-        [w, screenRect]=Screen(screenNumber,'OpenWindow', grayPix);
+	[w, screenRect]=Screen(screenNumber,'OpenWindow', grayPix);
     
     
     % Make sure this GPU supports shading at all:
@@ -152,14 +153,12 @@ try
     waitframes = 1; %I expect most new computers can handle updates at ifi
     ifiDuration = waitframes*ifi;
     
-
-%%%%%%%%%%%%%%%%%%%% GET STIMULUS TIMING INFORMATION %%%%%%%%%%%%%%%%%%%%%%
-    
-    % The wait, duration, and delay are stored in trials structure. They
-    % are the same for all trials so just get timing info from 1st trial
-    delay = trials(1).Timing(1);
-    duration = trials(1).Timing(2);
-    wait = trials(1).Timing(3);
+    %%%%%%%%%%%%%%%%%%%%%% DRAW PRESTIM GRAY SCREEN %%%%%%%%%%%%%%%%%%%%%%%
+    % We call the function stimInitScreen to draw a screen to the window
+    % before the stimulus appears to allow for any adaptation that is need
+    % to a change in luminance
+    stimInitScreen(w,trials(1).Initialization_Screen,grayPix,ifiDuration)
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    %%%%%%%%%%%%%%%%%%%%% CONSTRUCT AND DRAW TEXTURES %%%%%%%%%%%%%%%%%%%%%%
@@ -176,13 +175,22 @@ try
     exitLoop=0; %This is a flag indicating we need to break from the trials
                 % structure loop below. The flag becomes true (=1) if the
                 % user presses any key
-    n=0;        % This is a counter to shift our grating on each redraw
+   
     
     % MAIN LOOP OVER TRIALS TO CONSTRUCT TEXS AND DRAW THEM
     for trial=1:numel(trials)
         if exitLoop==1;
             break;
         end
+        
+         n=0;       % This is a counter to shift our grating on each redraw
+         
+         %%%%%%%%%%% GET STIMULUS TIMING INFORMATION %%%%%%%%%%%%%%%%%%%%%%
+    
+         % The wait, duration, and delay are stored in trials structure.
+         delay = trials(trial).Timing(1);
+         duration = trials(trial).Timing(2);
+         wait = trials(trial).Timing(3);
     
         %%%%%%%%%%%%%%%%%%% CONSTRUCT SURROUND TEXTURE %%%%%%%%%%%%%%%%%%%%
         % We start by constructing a surround grating texture (note 
@@ -222,29 +230,39 @@ try
         surroundGratingTex{trial}=Screen('MakeTexture', w,...
                                         surrGrating,[], [], [], [], glsl);
     
-         %%%%%%%%%%%%%%%% CONSTRUCT OUTER MASK TEXTURE %%%%%%%%%%%%%%%%%%%%%
-        % The gray mask is simply a gray circle overlayed on the surround
-        % grating that will appear below the center grating to be drawn
-        % after the mask texture
+        %%%%%%%%%%%%% CONSTRUCT CIRCULAR MASK TEXTURE %%%%%%%%%%%%%%%%%%%%%
+        % A circular mask with gray values will now be created. The purpose
+        % of this circulare mask is two-fold. First, the circular mask will
+        % provide the inner gray cirle for the surround only condition.
+        % Second the circular mask can be made larger than the center
+        % grating to allow for a circular boundary between the center and
+        % surround gratings. The user can then choose to apply a gaussian
+        % border around the center grating.
 
         % Get the mask diameter in degrees from the trials structure
-        maskDiameter = trials(trial).Mask_Outer_Diameter;
+        circMaskDiameter = trials(trial).Mask_Outer_Diameter;
+        
         % Convert the mask Diameter to degrees
-        maskDiamPix = ceil((maskDiameter/degPerPix));
+        circMaskDiamPix = ceil((circMaskDiameter/degPerPix));
+        
         % construct a grid of mask locations so we can set the alpha
         % channel to 0 where the grating should show through the mask
         % (i.e. the complement or area outside the circular mask)
-        [maskX, maskY] = meshgrid(-maskDiamPix/2:...
-            maskDiamPix/2);
+        [circMaskX, circMaskY] = meshgrid(-circMaskDiamPix/2:...
+            circMaskDiamPix/2);
+        
         % construct the rectangular mask, a square of size maskDiamPix
-        mask = ones(maskDiamPix+1, maskDiamPix+1,2)*grayPix;
+        circMask = ones(circMaskDiamPix+1, circMaskDiamPix+1,2)*grayPix;
+        
         % set the alpha channel of the complimentary region (outside of
         % the circle to be transparent so the grating shows through
-        mask(:,:,2) = 255*(1-(maskX.^2+maskY.^2 >= (maskDiamPix/2)^2));
+        circMask(:,:,2) = 255*(1-(circMaskX.^2+circMaskY.^2 >=...
+                          (circMaskDiamPix/2)^2));
+                      
         % Construct the mask
-        maskTex{trial} = Screen('MakeTexture', w, mask,...
+        circMaskTex{trial} = Screen('MakeTexture', w, circMask,...
                                                     [], [], [], [], glsl);
-
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         %%%%%%%%%%%%% CONSTRUCT THE CENTER GRATING %%%%%%%%%%%%%%%%%%%%%%%%
         % Now we construct the center grating to be overlayed onto the
@@ -291,8 +309,67 @@ try
         % it when it is no longer needed in memory
         centerGratingTex{trial}=Screen('MakeTexture', w,...
             centerGrating, [], [], [], [], glsl);
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        %%%%%%%%%%%%%%% OBTAIN GRATING PARAMS FROM TRIALSSTRUCT %%%%%%%%%%%%%%%
+        %%%%%%%%%%%%% CONSTRUCT 2 GAUSSIAN MASK TEXTURES %%%%%%%%%%%%%%%%%%
+        % We now will create two circular gaussian aperture masks. We will
+        % set the alpha transparency value equal to the gaussian function
+        % centered at a radius equal to the outer grating and another mask
+        % centered at a radius equal to the center grating. If the user
+        % wishes not to have the gaussian mask they simply set the half
+        % width to 0 degrees
+        
+        % make a 2-D matrix of gray values (note we add one along
+        % each dimension so the mask will be centered about the x,y
+        % grating position specified by the user)
+        outerGaussMask = ones(visibleSize+1,visibleSize+1,2)*grayPix;
+        innerGaussMask = ones(visibleSize+1,visibleSize+1,2)*grayPix;
+        % obtain all the coordinates of the mask using meshgrid and center
+        % around the center of the monitor.
+        [gaussMaskX, gaussMaskY] = meshgrid(-visibleSize/2:visibleSize/2,...
+            -visibleSize/2:visibleSize/2);
+        
+        % convert the mask coordinates into polar coordinates (r,theta) with
+        % the following transformations
+        theta = atan2(gaussMaskY, gaussMaskX);
+        r = sqrt(gaussMaskX.^2+gaussMaskY.^2);
+        
+        % Now create a gaussian mask centered on ro and rotated about the
+        % center of the monitor
+        
+        % set the gaussian width (full width at half max) in degrees
+        outerFwhm = trials(trial).Outer_Gaussian_Mask_FWHM;
+        innerFwhm = trials(trial).Inner_Gaussian_Mask_FWHM;
+        % calculate the standard deviation corresponding to this FWHM in
+        % pixel units
+        outerSigma = outerFwhm/(2*sqrt(2*log(2)))*1/degPerPix;
+        innerSigma = innerFwhm/(2*sqrt(2*log(2)))*1/degPerPix;
+        
+        % set the center of the gaussian to be at the edge of the circular
+        % outer grating and one at the edge of the inner circular grating
+        outerRo = (trials(trial).Mask_Outer_Diameter*1/degPerPix)/2;
+        innerRo = (trials(trial).Center_Grating_Diameter*1/degPerPix)/2;
+        
+        % Define the transparency to be opaque (255) at ro and drop off with
+        % a standard deviation of sigma
+        outerGaussMask(:,:,2) = 255*...
+            exp(-(r-outerRo).^2/...
+                    (2*outerSigma^2)).*(cos(theta).^2+sin(theta).^2);
+                
+        innerGaussMask(:,:,2) = 255*...
+            exp(-(r-innerRo).^2/...
+                    (2*innerSigma^2)).*(cos(theta).^2+sin(theta).^2);
+        
+        % Make the outer mask texture
+        outerGaussMaskTex{trial} = Screen('MakeTexture', w, ...
+                                        outerGaussMask,[],[],[],[],glsl);
+                                    
+        % make the inner mask texture
+        innerGaussMaskTex{trial} = Screen('MakeTexture', w, ...
+                                        innerGaussMask,[],[],[],[],glsl);
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+    %%%%%%%%%%%%%%% OBTAIN GRATING PARAMS FROM TRIALSSTRUCT %%%%%%%%%%%%%%%
     % To draw each texture, we will need the temporal frequencies and the
     % orientations of the inner and outer gratings and construct rectangles
     % to draw the textures to.
@@ -327,18 +404,19 @@ try
     
     % create destination rectangle for the surround (size of grating)
     surrDstRect = [0 0 visibleSize visibleSize];
-    % create destination rectangle for the center
-    centerDstRect=[0 0 centerDiamPix+1 centerDiamPix+1];
+    % create destination rectangle for the center (size of center grating)
+    centerDstRect = [0 0 centerDiamPix+1 centerDiamPix+1];
+    % create a destination rectangle for the circular mask (size of circ
+    % mask)
+    circMaskDstRect = [0 0 circMaskDiamPix+1 circMaskDiamPix+1];
+    % create a destination rectangle for the gaussian mask
+    gaussMaskDstRect = [0 0 visibleSize visibleSize];
     
     % center each dstRect about user selected x,y coordinate
-    surrDstRect=CenterRectOnPoint(surrDstRect,x,y);
-    centerDstRect=CenterRectOnPoint(centerDstRect,x,y);
-    
-    % create a destination rectanlge for the mask
-    maskDstRect = [0 0 maskDiamPix maskDiamPix];
-    
-    % center the maskDstRect to the x,y location
-    maskDstRect=CenterRectOnPoint(maskDstRect,x,y);
+    surrDstRect = CenterRectOnPoint(surrDstRect,x,y);
+    centerDstRect = CenterRectOnPoint(centerDstRect,x,y);
+    circMaskDstRect = CenterRectOnPoint(circMaskDstRect,x,y);
+    gaussMaskDstRect = CenterRectOnPoint(gaussMaskDstRect,x,y);
         
     %%%%%%%%%%%%%%%%%%%%%%% PARALLEL PORT TRIGGER %%%%%%%%%%%%%%%%%%%%%%%%%
     % After constructing the stimulus texture we are now ready to trigger
@@ -430,7 +508,10 @@ try
                 centerSrcRect = [0 0 ...
                             centerDiamPix centerDiamPix];
                 
-                maskSrcRect = [0 0 maskDiamPix+1 maskDiamPix+1];
+                circMaskSrcRect = [0 0 ...
+                            circMaskDiamPix+1 circMaskDiamPix+1];
+                        
+                gaussMaskSrcRect = [0 0 visibleSize+1 visibleSize+1];
               
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
@@ -444,32 +525,63 @@ try
                 % surroundAlone (at iso ori)
                 % we will use a switch case to determine what to draw
                 switch trials(trial).Surround_Condition
-                    case 1 % center alone condition
+                    
+                    case 1 % CENTER ALONE CONDITION
                         Screen('DrawTexture', w,...
                             centerGratingTex{trial},...
                             centerSrcRect, centerDstRect,...
                             centerOrientation,[], [], [], [], [],...
                             [0 centerXOffset 0 0]);
                         
-                    case 2 % center and positive cross (+90)
+                        % If the inner gaussian mask width option is chosen
+                        % draw it over the center
+                        if trials(trial).Inner_Gaussian_Mask_FWHM > 0;
+                         Screen('DrawTexture', w,...
+                            innerGaussMaskTex{trial},...
+                            gaussMaskSrcRect, gaussMaskDstRect,...
+                            centerOrientation);
+                        end
+                        
+                    case 2 % CENTER AND POSITIVE (+90) CROSS CONDITION
+                        % Draw surround
                         Screen('DrawTexture', w,...
                             surroundGratingTex{trial}, surrSrcRect,...
                             surrDstRect, centerOrientation+90,...
                             [], [], [], [], [],...
                             [surrXOffset 0 ...
                             surrXOffset+visibleSize+1 visibleSize+1]);
-                
-                        Screen('DrawTexture', w, maskTex{trial},...
-                            maskSrcRect, maskDstRect,...
+                        
+                        % Draw circular mask
+                        Screen('DrawTexture', w, circMaskTex{trial},...
+                            circMaskSrcRect, circMaskDstRect,...
                             centerOrientation+90);
-                   
+                        
+                        % Draw the center grating
                         Screen('DrawTexture', w,...
                             centerGratingTex{trial}, centerSrcRect,...
                             centerDstRect, centerOrientation,...
                             [], [], [], [], [], [0 centerXOffset 0 0]);
-
                         
-                    case 3 % center and negative cross (-90)
+                        % If the outer gaussian mask width option is chosen
+                        % draw it 
+                        if trials(trial).Outer_Gaussian_Mask_FWHM > 0;
+                         Screen('DrawTexture', w,...
+                            outerGaussMaskTex{trial},...
+                            gaussMaskSrcRect, gaussMaskDstRect,...
+                            centerOrientation);
+                        end
+                        
+                        % If the inner gaussian mask width option is chosen
+                        % draw it 
+                        if trials(trial).Inner_Gaussian_Mask_FWHM > 0;
+                         Screen('DrawTexture', w,...
+                            innerGaussMaskTex{trial},...
+                            gaussMaskSrcRect, gaussMaskDstRect,...
+                            centerOrientation);
+                        end
+                        
+                    case 3 % CENTER AND NEGATIVE (-90) CROSS CONDITION
+                        % Draw surround
                         Screen('DrawTexture', w,...
                             surroundGratingTex{trial}, surrSrcRect,...
                             surrDstRect, centerOrientation-90,...
@@ -477,42 +589,66 @@ try
                             [surrXOffset 0 ...
                             surrXOffset+visibleSize+1 visibleSize+1]);
                 
-                        Screen('DrawTexture', w, maskTex{trial},...
-                            maskSrcRect, maskDstRect,...
+                        % Draw circular mask
+                        Screen('DrawTexture', w, circMaskTex{trial},...
+                            circMaskSrcRect, circMaskDstRect,...
                             centerOrientation-90);
                    
+                        % Draw the center grating
                         Screen('DrawTexture', w,...
                             centerGratingTex{trial}, centerSrcRect,...
                             centerDstRect, centerOrientation,...
                             [], [], [], [], [], [0 centerXOffset 0 0]);
                         
-                    case 4 % center and iso surround
+                        % If the gaussian mask width option is chosen draw
+                        % it over the center
+                        if trials(trial).Outer_Gaussian_Mask_FWHM > 0;
+                         Screen('DrawTexture', w,...
+                            outerGaussMaskTex{trial},...
+                            gaussMaskSrcRect, gaussMaskDstRect,...
+                            centerOrientation);
+                        end
+                        
+                        % If the inner gaussian mask width option is chosen
+                        % draw it 
+                        if trials(trial).Inner_Gaussian_Mask_FWHM > 0;
+                         Screen('DrawTexture', w,...
+                            innerGaussMaskTex{trial},...
+                            gaussMaskSrcRect, gaussMaskDstRect,...
+                            centerOrientation);
+                        end
+                        
+                    case 4 % CENTER AND ISO-ORIENTED SURROUND CONDITION
+                        % Draw the surround
                         Screen('DrawTexture', w,...
                             surroundGratingTex{trial}, surrSrcRect,...
                             surrDstRect, centerOrientation,...
                             [], [], [], [], [],...
                             [surrXOffset 0 ...
                             surrXOffset+visibleSize+1 visibleSize+1]);
-                
-                        Screen('DrawTexture', w, maskTex{trial},...
-                            maskSrcRect, maskDstRect, centerOrientation)
-                   
+                        
+                    case 5 % SURROUND ALONE CONDITION
                         Screen('DrawTexture', w,...
-                            centerGratingTex{trial}, centerSrcRect,...
-                            centerDstRect, centerOrientation,...
-                            [], [], [], [], [], [0 centerXOffset 0 0]);
+                            surroundGratingTex{trial}, surrSrcRect,...
+                            surrDstRect, centerOrientation,...
+                            [], [], [], [], [],...
+                            [surrXOffset 0 ...
+                            surrXOffset+visibleSize+1 visibleSize+1]);
+                        
+                        % Draw circular mask
+                        Screen('DrawTexture', w, circMaskTex{trial},...
+                            circMaskSrcRect, circMaskDstRect,...
+                            centerOrientation);
+                        
+                        % If the gaussian mask width option is chosen draw
+                        % it over the center
+                        if trials(trial).Outer_Gaussian_Mask_FWHM > 0;
+                         Screen('DrawTexture', w,...
+                            outerGaussMaskTex{trial},...
+                            gaussMaskSrcRect, gaussMaskDstRect,...
+                            centerOrientation);
+                        end
 
-                        
-                    case 5 % iso surround alone
-                        Screen('DrawTexture', w,...
-                            surroundGratingTex{trial}, surrSrcRect,...
-                            surrDstRect, centerOrientation,...
-                            [], [], [], [], [],...
-                            [surrXOffset 0 ...
-                            surrXOffset+visibleSize+1 visibleSize+1]);
-                        
-                        Screen('DrawTextures', w, maskTex{trial},...
-                            maskSrcRect, maskDstRect, centerOrientation);
                 
                 end % end switch/case 
                 
@@ -602,7 +738,9 @@ try
     % JAVA OUT OF MEMORY ERRORS!!!
     Screen('Close', centerGratingTex{trial})
     Screen('Close', surroundGratingTex{trial})
-    Screen('Close', maskTex{trial})
+    Screen('Close', circMaskTex{trial})
+    Screen('Close', outerGaussMaskTex{trial})
+    Screen('Close', innerGaussMaskTex{trial})
     end % End of trials loop
     
     % Restore normal priority scheduling in case something else was set
@@ -628,3 +766,4 @@ Screen('Preference', 'Verbosity',3);
 %  http://psychtoolbox.org/FaqWarningPrefs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
+

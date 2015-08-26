@@ -123,7 +123,7 @@ try
     % HIDE CURSOR FROM SCREEN
     HideCursor;
     % OPEN A SCREEN WITH A BG COLOR OF GRAY (RETURN POINTER W)
-	[w screenRect]=Screen(screenNumber,'OpenWindow', grayPix);
+	[w, screenRect]=Screen(screenNumber,'OpenWindow', grayPix);
 %%%%%%%%%%%%%%%%%%%%%%%%% PREP SCREEN FOR DRAWING %%%%%%%%%%%%%%%%%%%%%%%%%
 
 % SCRIPT PRIORITY LEVEL

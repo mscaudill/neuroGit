@@ -369,12 +369,12 @@ else % We have a triggered stimulus and need to save the trials structure
             FullFieldGrating(trials);
         case 'Masked Grating'
             MaskedGrating(trials);
-        case 'Center-surround Grating'
-            CenterSurroundGrating(trials)
+        case 'Simple Center-surround Grating'
+            SimpleCenterSurround(trials)
         case 'Gridded Grating'
             GriddedGrating(trials)
-        case 'Simple Center-surround Grating'
-            SimpleCenterSurroundV2(trials)
+        case 'Gauss Simple Center-surround Grating'
+            GaussSimpleCenterSurround(trials)
         case 'Single Angle CS'
             SingleAngleCS(trials)
     end
