@@ -26,5 +26,6 @@ ImExpDirInformation;
 state.imageFileLoc = dirInfo.imageFileLoc; 
 state.stimFileLoc = dirInfo.stimFileLoc;
 state.imExpRawFileLoc = dirInfo.imExpRawFileLoc;
+state.rootDataDir = dirInfo.rootDataDir;
 end
 

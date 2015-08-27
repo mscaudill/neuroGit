@@ -582,9 +582,17 @@ state.chsToSave = str2num(get(hObject,'String'));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function saveEncoderBox_Callback(hObject, eventdata, handles)
 global state
-state.saveEncoder = str2num(get(hObject,'String'));
 % When the user changes the SaveEncoder, we need to get the new value
 % for passing to imExpMaker, the function that will create our imExp
+state.saveEncoder = str2num(get(hObject,'String'));
+% We also will open a uigetfile and request that the user provide the data
+% files and path asscoiated with this experiment
+[state.dataFileNames, state.dataFilePath] = ...
+                        uigetfile(...
+                        {'*.daq;*.abf' '*.daq & *.abf';'*.daq' 'DAQ';...
+                        '*.abf' 'ABF'},'Select data files',...
+                        state.rootDataDir,'MultiSelect','on');
+assignin('base','state',state)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -664,7 +672,7 @@ global state
 % the state variable so no more references can be made to state, This is an
 % error in the java turboReg code. The code is ~10,000 lines and I could
 % not locate the deletion point)
-imExp = imExpCreatorV2(state);
+imExp = imExpCreate(state);
 
 stimFileNames = get(handles.stimFileNamesBox,'string');
 % call imExpSaverFunc to save the imExp to imExpRawLoc
