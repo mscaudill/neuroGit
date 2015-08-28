@@ -1,6 +1,6 @@
 function varargout = ImExpMaker(varargin)
 % IMEXPMAKER M-file for ImExpMaker.fig
-% Last Modified by GUIDE v2.5 06-Dec-2013 15:52:40
+% Last Modified by GUIDE v2.5 28-Aug-2015 16:01:45
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %copyright (c) 2012  Matthew Caudill
 %
@@ -606,6 +606,15 @@ global state
 state.chsToCorrect = str2num(get(hObject,'String'));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%% FRAMES TO REMOVE CALLBACK %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function framesToRemove_Callback(hObject, eventdata, handles)
+global state
+% When the user selects to drop frames from image stacks we need to save
+% these frames to an array in state
+state.framesToDrop = str2num(get(hObject,'String'));
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%% ENCODER OFFSET CALLBACK %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -831,6 +840,18 @@ end
 % --- Executes during object creation, after setting all properties.
 function imagingDepth_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to imagingDepth (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% --- Executes during object creation, after setting all properties.
+function framesToRemove_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to framesToRemove (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
