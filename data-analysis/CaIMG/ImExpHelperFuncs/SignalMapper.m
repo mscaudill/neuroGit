@@ -51,14 +51,14 @@ if Led{1} == true
     % we need to check that the led was actually shown in the imExp.
     % This is stored in the stimulus struct Check to make sure that the
     % LED was shown (i.e. is present in stimulus structure)
-    ledPresence = isfield(imExp.stimulus,'Led_Condition');
+    ledPresence = isfield(imExp.stimulus,'Led');
     if ledPresence == 0;
         % If the user has selected to seperate based on LED trials and
         % the stimulus structure does not confirm that an led was shown
         % then we throw a warning and set the led option to not true
         msgbox(['COULD NO CONFIRM LED SHOWN:', char(10),...
             'OVER-RIDING AND SETTING LED OPTION TO NOT SHOWN.'])
-        Led = {false, 'odd'};
+        Led = {false, 'even'};
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
@@ -149,7 +149,7 @@ switch Led{1}
             nonLedSubStructs{strcmp(fieldsToAlternate,'correctedStacks')};
         nonLedExp.stackExtremas =...
             nonLedSubStructs{strcmp(fieldsToAlternate,'stackExtremas')};
-    
+        
     case false
         % nothing to do here
     
@@ -196,7 +196,7 @@ switch Led{1}
         
         %%%%%%%%%%%%%% CASE TWO DIMENSIONAL STIMULUS %%%%%%%%%%%%%%%%%%%%%%
         if any(ismember(twoDimStimuli,stimVariable))
-            
+             
             % compute the map for the nonLed trials
             [~, signalMaps{1}, ~] = csFluorMap(nonLedExp,...
                                             roiSets,currentRoi, ...
@@ -248,5 +248,6 @@ switch Led{1}
         end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+assignin('base','signalMaps',signalMaps)
 end
 
