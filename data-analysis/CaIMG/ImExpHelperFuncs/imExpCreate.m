@@ -34,8 +34,6 @@ function imExp = imExpCreate(state)
 %%%%%%%%%%%%%%%%%%%%%%%%%% LOAD DIR INFORMATION %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ImExpDirInformation;
-daqFileLoc = dirInfo.daqFileLoc;
-abfFileLoc = dirInfo.abfFileLoc;
 stimFileLoc = dirInfo.stimFileLoc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -166,7 +164,8 @@ for name = 1:numel(state.stimFileNames)
         
         %%%%%%%%%%%%%%%% READ ENCODER CH FROM EACH FILE %%%%%%%%%%%%%%%%%%%
         % Call daqread to read in our data file
-        origData = daqread(fullfile(daqFileLoc, state.dataFileName{name}),...
+        origData = daqread(fullfile(state.dataFilePath,...
+                        state.dataFileName{name}),...
                         'Channels', state.saveEncoder);
         
        % Triggers are denoted by NaN's in the data so we remove these
@@ -195,7 +194,8 @@ for name = 1:numel(state.stimFileNames)
             % specific channel loading). The shape of the loaded data is
             % numDataPts x numChs x numTriggers. We will reshape this to be
             % numDataPts x numTriggers x numChs
-            [data,~,~] = abfload([daqFileLoc,state.dataFileNames{name}]);
+            [data,~,~] = abfload([state.dataFilePath,...
+                                        state.dataFileNames{name}]);
             
             % now perform the reshape using permute on the 2nd and 3rd dim
             allData = permute(data,[1,3,2]);
@@ -266,13 +266,6 @@ end
 % correction if the user supplied channels to correct, and save the image
 % stacks to imExp.
 
-%%%%%%%%%%%%%%%%% OPEN WAITBAR TO RELAY PROGRESS %%%%%%%%%%%%%%%%%%%%%%%%%%
-% Since motion correction can be a lengthy process, we will relay back to
-% the user the progress percentage in a wait bar
-h = waitbar(0,'Performing Motion Correction, Please Wait...',...
-            'CreateCancelBtn','setappdata(gcbf,''canceling'',1)');
-setappdata(h,'canceling',0)
-
 %tic % set a counter for the processing time
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -295,13 +288,20 @@ allImageFileNames = [imExp.fileInfo(:,:).imageFileNames];
 % loop by pressing the 'cancel' button in the wait bar
 breakOut = 0;
 
+%%%%%%%%%%%%%%%%% OPEN WAITBAR TO RELAY PROGRESS %%%%%%%%%%%%%%%%%%%%%%%%%%
+% Since motion correction can be a lengthy process, we will relay back to
+% the user the progress percentage in a wait bar
+h = waitbar(0,'Performing Motion Correction, Please Wait...',...
+    'CreateCancelBtn','setappdata(gcbf,''canceling'',1)');
+setappdata(h,'canceling',0)
+
 % LOOP THROUGH EACH TIFF IMAGE FILE NAME
 for imageFile = 1:numImageStacks
     
     % CHECK FOR CANCEL PRESS
     if getappdata(h,'canceling')
-        breakOut = 1;
-        break
+       breakOut = 1;
+       break
     end
     
     % CALL TIFFLOADER TO LOAD THE IMAGE STACK & EXTREMUMS 
@@ -312,7 +312,8 @@ for imageFile = 1:numImageStacks
     if ~strcmp(allImageFileNames{imageFile},'missedTrigger') 
         [tiffExtremas{imageFile},tiffStacks{imageFile}] =...
                      tiffLoader(state.imagePath,...
-                     allImageFileNames{imageFile}, state.chsToSave);
+                     allImageFileNames{imageFile}, state.chsToSave,...
+                     'framesToDrop',state.framesToDrop);
     else
         % if we missed a trigger then we will loop through the chsToSave
         % and assign an NaN to the tiffExtremas and tiffStacks
@@ -326,6 +327,7 @@ for imageFile = 1:numImageStacks
     % MET. 1. USER MUST SELECT CHS TO CORRECT, 2. TRIGGER MUST NOT HAVE
     % BEEN MISSED IN ORDER THAT WE CALL TURBOREG TO CORRECT
     if ~isnan(state.chsToCorrect) % chk that some chs are to be corrected
+        
             % loop through only chs to be corrected
             for ch = 1:numel(state.chsToCorrect)
                 % chk that the tiffstack to correct is not a missedTrigger

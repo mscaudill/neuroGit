@@ -49,7 +49,7 @@ state.runState = 2;
 state.neuropilRatio = 0.7;
 
 % set the initial led state
-state.Led = {false, 'odd'};
+state.Led = {false, 'even'};
 
 % user can select any pre initialized notes to display with this imExp
 state.notes = 'Notes';

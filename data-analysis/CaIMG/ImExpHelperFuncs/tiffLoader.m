@@ -1,21 +1,6 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%copyright (c) 2012  Matthew Caudill
-%
-%this program is free software: you can redistribute it and/or modify
-%it under the terms of the gnu general public license as published by
-%the free software foundation, either version 3 of the license, or
-%at your option) any later version.
-%
-%this program is distributed in the hope that it will be useful,
-%but without any warranty; without even the implied warranty of
-%merchantability or fitness for a particular purpose.  see the
-%gnu general public license for more details.
-%
-%you should have received a copy of the gnu general public license
-%along with this program.  if not, see <http://www.gnu.org/licenses/>.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [ stackExtrema, tiffCell] = tiffLoader(imagePath, ...
-                                                 tiffImageStack, chsToSave)
+                                                 tiffImageStack,...
+                                                 chsToSave, varargin)
 % tiffLoader reads in a single image stack and converts it into a 1 x 4
 % cell array where each element contains a 3-d matrix of images for that
 % ch. (e.g. user selects to save chs 2 and 3 then tiffCell = {[],
@@ -38,11 +23,57 @@ function [ stackExtrema, tiffCell] = tiffLoader(imagePath, ...
 %                        for each channel
 %                       :tiffCell, a cell array of tiff matrices, one for
 %                       each channel
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%copyright (c) 2012  Matthew Caudill
+%
+%this program is free software: you can redistribute it and/or modify
+%it under the terms of the gnu general public license as published by
+%the free software foundation, either version 3 of the license, or
+%at your option) any later version.
+%
+%this program is distributed in the hope that it will be useful,
+%but without any warranty; without even the implied warranty of
+%merchantability or fitness for a particular purpose.  see the
+%gnu general public license for more details.
+%
+%you should have received a copy of the gnu general public license
+%along with this program.  if not, see <http://www.gnu.org/licenses/>.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %TESTING
 %  imagePath = 'G:\data\ImagingData\02062013';
 %  tiffImageStack = 's7cs_2_161.tif';
 %  chsToSave = [2,3];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%% BUILD INPUT PARSER %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Construct the parser object
+p = inputParser;
+
+%%%%%%%%%%%%%%%%%%%%%%%% ADD REQUIRED ARGS TO PARSER %%%%%%%%%%%%%%%%%%%%%%
+% add the required imagePath to the parser and validate
+addRequired(p,'imagePath',@ischar);
+
+% add the required tiff stack fileName and validate
+addRequired(p,'tiffImageStack',@ischar);
+
+% add the required chs to save
+addRequired(p,'chsToSave',@isnumeric)
+
+%%%%%%%%%%%%%%%%%%%%%%% ADD VARARGS TO PARSER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+defaultFramesToDrop = [];
+addParamValue(p,'framesToDrop',defaultFramesToDrop,@isnumeric)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% CALL PARSE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+parse(p, imagePath, tiffImageStack, chsToSave, varargin{:})
+
+%%%%%%%%%%%%%%%%%%% EXTRACT FROM PARSER REQUIRED INPUTS %%%%%%%%%%%%%%%%%%%
+imagePath = p.Results.imagePath;
+tiffImageStack = p.Results.tiffImageStack;
+chsToSave = p.Results.chsToSave;
+framesToDrop = p.Results.framesToDrop;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%% CONSTRUCT FULLFILE PATH/NAME TO TIFF STACK %%%%%%%%%%%%%%%%
 tiffFile = fullfile(imagePath,tiffImageStack);
@@ -115,11 +146,13 @@ tiffMatrix = zeros(imageWidth, imageHeight ,NumberImages, 'uint16');
 % TifLink = Tiff(tiffFile, 'r');
 % 
 % for image = 1:NumberImages
-%     % Each image in the tiff stack is stored to it's own directory and can 
-%     % be accessed by the directory number matching the image number
-%     TifLink.setDirectory(image);
-%     % store image to tiffMatrix
-%     tiffMatrix(:,:,image)=TifLink.read();
+%     if ~ismember(image,framesToDrop)
+%         % Each image in the stack is stored to it's own directory and can
+%         % be accessed by the directory number matching the image number
+%         TifLink.setDirectory(image);
+%         % store image to tiffMatrix
+%         tiffMatrix(:,:,image)=TifLink.read();
+%     end
 % end
 % 
 % % Be sure to close our tiff object to free up memory chunk
@@ -127,8 +160,10 @@ tiffMatrix = zeros(imageWidth, imageHeight ,NumberImages, 'uint16');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% IMREAD TIFFS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% We now will load the images from the tiff file using imread.
 for image = 1:NumberImages
-   tiffMatrix(:,:,image)=imread(tiffFile,'Index',image);
+        tiffMatrix(:,:,image)=imread(tiffFile,'Index',image,'Info',...
+                                    InfoImage);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -142,6 +177,8 @@ stackExtrema = cell(1,numel(chs));
 for ch = 1:numel(chsToSave)
     index = find(chsToSave(ch) == chsRecorded);
     tiffCell{chsToSave(ch)} = tiffMatrix(:,:,index:numel(chsRecorded):end);
+    % Now we will drop the requested frames in each of the channels
+    tiffCell{chsToSave(ch)}(:,:,framesToDrop) = [];
     % For displaying the images, we will pass back the lowest and highest
     % uint16 value in the tiffMatrix
     stackExtrema{chsToSave(ch)} = [min(min(min(tiffCell{chsToSave(ch)}))),...
@@ -149,7 +186,7 @@ for ch = 1:numel(chsToSave)
 end
 
 
-%assignin('base','matrices',tiffCell);
-%assignin('base','extrema',stackExtrema);
+assignin('base','matrices',tiffCell);
+assignin('base','extrema',stackExtrema);
 end
 

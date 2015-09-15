@@ -1689,13 +1689,13 @@ function ledTrialsBox_Callback(hObject, eventdata, handles)
 % When the user changes which trials the led was shown on 'odd' or 'even',
 % we need to check that it is a valid entry and then update the state.
 global state
-userReqString = get(handles.leTrialsBox,'string');
+userReqString = get(handles.ledTrialsBox,'String');
 if ~any(ismember({'odd','even'},userReqString))
     LedMsgErr = msgbox(['Led trials can only be odd or even:', char(10),...
-                        'Defaulting to odd']);
-    set(handles.LedTrialsBox,'String','odd')
+                        'Defaulting to even']);
+    set(handles.LedTrialsBox,'String','even')
 else
-    state.Led{2} = get(handles.LedTrialsBox, 'String');
+    state.Led{2} = get(handles.ledTrialsBox, 'String');
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1708,7 +1708,7 @@ function meanDFbyFButton_Callback(hObject, eventdata, handles)
 
 global imExp
 global state
-
+assignin('base','analyzerState',state)
 % When the user selects to plot the mean df/f, we need to perform the
 % following
 % call the signalMapper which will create the proper map object for the
@@ -1722,7 +1722,7 @@ hmsg = msgbox(['Plot Being Generated: Please Note', char(10), ...
         'The Plot is an Approximation until', char(10),...
         'all Rois have been drawn']);
   
-[signalMap, plotterType] = SignalMapper(imExp, state.stimVariable,...
+[signalMaps, plotterType] = SignalMapper(imExp, state.stimVariable,...
                                         state.roiSets, state.currentRoi,...
                                         state.chToDisplay,...
                                         state.runState, state.Led,...
@@ -1744,7 +1744,7 @@ switch plotterType
         close(hmsg)
         
     case 'csPlotter'
-        csPlotter(signalMap{1}{1},'all',imExp.stimulus, imExp.fileInfo,hfig)
+        CSPlotter(signalMaps,'all',imExp.stimulus, imExp.fileInfo,hfig)
 
         close(hmsg)
         
