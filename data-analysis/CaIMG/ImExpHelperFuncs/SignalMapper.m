@@ -150,12 +150,14 @@ switch Led{1}
         nonLedExp.stackExtremas =...
             nonLedSubStructs{strcmp(fieldsToAlternate,'stackExtremas')};
         
+        assignin('base','nonLedExp',nonLedExp)
+        assignin('base', 'ledExp', ledExp)
+        
     case false
         % nothing to do here
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-assignin('base','nonLedExp',nonLedExp)
-assignin('base','ledExp',ledExp)
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%% CREATE SIGNAL MAPS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -244,7 +246,7 @@ switch Led{1}
            
            % We will also pass as an output the appropriate fluorescence
             % plotter that should be called to plot these maps                          
-            plotterType = 'csPlotter';
+            plotterType = 'CSPlotter';
         end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

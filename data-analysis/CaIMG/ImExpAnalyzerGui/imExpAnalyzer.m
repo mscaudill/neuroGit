@@ -1337,8 +1337,13 @@ elseif strcmp(state.stimVariable,'Simple Center/Surround')
     set(handles.stimValsListBox, 'String', stimVals)
 else
     
-    msgbox(['The Stimulus Variable ',state.stimVariable,...
-             ' is not present'])
+    stimMsgErr = msgbox(['The Stimulus Variable ',state.stimVariable,...
+             ' is not present']);
+         
+    pause(5)
+    if ishandle(stimMsgErr)
+        close(stimMsgErr)
+    end
 end
 
 % update the handles structure to reflect these changes in the gui
@@ -1510,9 +1515,6 @@ trialIndex = get(handles.stimFileNamesBox,'Value');
 cellImageIdentifier(imExp.fileInfo, state.imagePath, trialIndex, ...
                     state.trigNumber, state.frameNumber, [2,3],...
                     state.scaleFactor, [2,1])
-%cellImageIdentifier(imExp.fileInfo, state.imagePath, trialIndex, ...
-                    %state.trigNumber, state.frameNumber, state.allChs,...
-                    %state.scaleFactor, [2,1])
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1529,7 +1531,8 @@ global imExp
 % to roiSet 1.
 [Image] = multiStackMaxIntensity({imExp.correctedStacks(:,:).(['Ch',...
                             num2str(state.chToDisplay)])},'uint16');
-                        assignin('base','Image',Image)
+
+%assignin('base','Image',Image)
 % set the axes for plotting just in case
 imageAxes = handles.imageData;
 Image = imadjust(Image);
@@ -1630,8 +1633,13 @@ elseif strcmp(state.stimVariable,'Simple Center/Surround')
     set(handles.stimValsListBox, 'String', stimVals)
 else
     
-    msgbox(['The Stimulus Variable ',state.stimVariable,...
-             ' is not present'])
+    stimMsgErr = msgbox(['The Stimulus Variable ',state.stimVariable,...
+             ' is not present']);
+    pause(5)
+    % If user has not already closed msg close it now.
+    if ishandle(stimMsgErr)
+        close(stimMsgErr)
+    end
 end
 
 % update the handles structure to reflect these changes in the gui
@@ -1690,9 +1698,17 @@ function ledTrialsBox_Callback(hObject, eventdata, handles)
 % we need to check that it is a valid entry and then update the state.
 global state
 userReqString = get(handles.ledTrialsBox,'String');
+% Perform an error handling check to ensure the user has entered 'even' or
+% 'odd'
 if ~any(ismember({'odd','even'},userReqString))
     LedMsgErr = msgbox(['Led trials can only be odd or even:', char(10),...
                         'Defaulting to even']);
+    pause(5)
+    % If user has not already closed msg close it now.
+    if ishandle(LedMsgErr)
+        close(LedMsgErr)
+    end
+    
     set(handles.LedTrialsBox,'String','even')
 else
     state.Led{2} = get(handles.ledTrialsBox, 'String');
@@ -1721,40 +1737,63 @@ assignin('base','analyzerState',state)
 hmsg = msgbox(['Plot Being Generated: Please Note', char(10), ...
         'The Plot is an Approximation until', char(10),...
         'all Rois have been drawn']);
-  
-[signalMaps, plotterType] = SignalMapper(imExp, state.stimVariable,...
-                                        state.roiSets, state.currentRoi,...
-                                        state.chToDisplay,...
-                                        state.runState, state.Led,...
-                                        state.neuropilRatio);
-assignin('base','signalMaps',signalMaps)
-assignin('base','analyzerState',state)                
-% get the number of open figures
-numFigs=length(findall(0,'type','figure'));
-% create a figure one greater than the number of open figures
-hfig = figure(numFigs+1);
-
-% Call the correct plotting routine (note this currently only plots nonLed
-% signals because I have yet to update the plotters, I also want them to
-% plot to a specific axis for clarity
-switch plotterType
     
-    case 'fluorPlotter'
-        fluorPlotter2(signalMaps, state.stimVariable, imExp.stimulus,...
-                     imExp.fileInfo, hfig);
-        close(hmsg)
-        
-    case 'csPlotter'
-        CSPlotter(signalMaps,'all',imExp.stimulus, imExp.fileInfo,hfig)
-
-        close(hmsg)
-        
-    otherwise
-        close(hmsg)
-        % Throw message error
-        hmsgErr = msgbox(['The selected stimulus variable', ...
-                    'is not present in the imExp OR no Roi selected']);
+% use a try catch just in case there is an error in the users input that
+% causes a subfunction of signal mapper to fail.
+try
     
+    [signalMaps, plotterType] = SignalMapper(imExp, state.stimVariable,...
+        state.roiSets, state.currentRoi,...
+        state.chToDisplay,...
+        state.runState, state.Led,...
+        state.neuropilRatio);
+    
+    % get the number of open figures
+    numFigs=length(findall(0,'type','figure'));
+    % create a figure one greater than the number of open figures
+    hfig = figure(numFigs+1);
+    
+    % Call the correct plotting routine
+    switch plotterType
+        
+        case 'fluorPlotter'
+            fluorPlotter2(signalMaps, state.stimVariable, imExp.stimulus,...
+                imExp.fileInfo, hfig);
+            close(hmsg)
+            
+        case 'csPlotter'
+            csPlotter(signalMaps,'all',imExp.stimulus, imExp.fileInfo,hfig)
+            
+            close(hmsg)
+            
+        otherwise
+            close(hmsg)
+            % Throw message error
+            hmsgErr = msgbox(['The selected stimulus variable', ...
+                'is not present in the imExp OR no Roi selected']);
+            pause(5)
+            % If user has not already closed msg close it now.
+            if ishandle(hmsgErr)
+                close(hmsgErr)
+            end
+            
+    end
+    
+catch 
+    % If something went wrong above close the previous msgbox and open a
+    % new one with a warning beep to alert user of the likely problem
+    close(hmsg)
+    close(hfig)
+    errMsg = msgbox(['An error occurred and is likely due to a'...
+                     char(10),'bad user input in the analyzer gui.'...
+                     char(10),'Check Stimulus Variable or LED Gui'...
+                     ' options']);
+    % leave the msg up for ten seconds then close if user has not done so
+    % already
+    pause(5)
+    if ishandle(errMsg)
+        close(errMsg)
+    end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
