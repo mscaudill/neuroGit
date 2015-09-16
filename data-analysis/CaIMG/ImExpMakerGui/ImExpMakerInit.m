@@ -15,7 +15,7 @@ state.chsToSave = [2];
 state.saveEncoder = [];
 state.chsToCorrect = [2];
 state.scaleFactor = 1;
-state.framesToRemove = [];
+state.framesToRemove = [1:4];
 
 %initialize the encoder options
 state.encoderOffset = 0.2;

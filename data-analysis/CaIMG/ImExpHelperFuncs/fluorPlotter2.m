@@ -192,7 +192,8 @@ for key = 1:numel(fullNonLedSignalMatrices)
     plot(signalAxes, time,meanNonLedSigs{key},'Color',[0,0,0],'LineWidth',2)
     hold on
     % plot the individual trials for each key
-    plot(signalAxes, time,fullNonLedSignalMatrices{key},'Color',[.5,.5,.5])
+    plot(signalAxes, time,fullNonLedSignalMatrices{key},'Color',...
+        [205/255,201/255,201/255])
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%% PLOT THE LED SIGNALS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -206,10 +207,12 @@ if ~isempty(fluorMap{2}{1})
             ((key-1)*frames+1:key*frames)/(frameRate)+timeShiftArray(key);
         
         % now plot the mean of the individual trials
-        plot(signalAxes, time,meanLedSigs{key},'Color',[1,0,0],'LineWidth',2)
+        plot(signalAxes, time,meanLedSigs{key},'Color',...
+            [46/255,139/255,87/255],'LineWidth',2)
         hold on
         % plot the individual trials for each key
-        plot(signalAxes, time,fullLedSignalMatrices{key},'Color',[1, 0.4, 0.7])
+        plot(signalAxes, time,fullLedSignalMatrices{key},'Color',...
+            [143/255,188/255,143/255])
     end
 end
 
@@ -250,7 +253,7 @@ for epoch = 1:numel(epochVectors)
     ha = area(epochVectors{epoch}, upperBoundaries{epoch}, yLimits(1));
     
     % set the area properties
-    set(ha, 'FaceColor', [.85 .85 .85])
+    set(ha, 'FaceColor', [245 245 245]/255)
     set(ha, 'LineStyle', 'none')
     
     hold off;

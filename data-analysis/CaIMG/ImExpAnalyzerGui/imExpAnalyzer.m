@@ -1727,7 +1727,8 @@ hmsg = msgbox(['Plot Being Generated: Please Note', char(10), ...
                                         state.chToDisplay,...
                                         state.runState, state.Led,...
                                         state.neuropilRatio);
-                
+assignin('base','signalMaps',signalMaps)
+assignin('base','analyzerState',state)                
 % get the number of open figures
 numFigs=length(findall(0,'type','figure'));
 % create a figure one greater than the number of open figures
@@ -1739,7 +1740,7 @@ hfig = figure(numFigs+1);
 switch plotterType
     
     case 'fluorPlotter'
-        fluorPlotter2(signalMap, state.stimVariable, imExp.stimulus,...
+        fluorPlotter2(signalMaps, state.stimVariable, imExp.stimulus,...
                      imExp.fileInfo, hfig);
         close(hmsg)
         
