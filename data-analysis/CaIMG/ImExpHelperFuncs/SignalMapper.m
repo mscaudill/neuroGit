@@ -1,4 +1,5 @@
-function [ signalMaps, plotterType ] = SignalMapper( imExp, stimVariable,...
+function [signalMaps, plotterType, framesDropped] = SignalMapper(...
+                                         imExp, stimVariable,...
                                          roiSets, currentRoi, chNumber,...
                                          runState, Led, neuropilRatio)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -249,6 +250,17 @@ switch Led{1}
             plotterType = 'CSPlotter';
         end
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% RETURN DROPPED FRAMES  %%%%%%%%%%%%%%%%%%%%%%%
+% If the experiment contains user selected dropped frames then we will pass
+% those back out of the signal mapper. For imExps created prior to frame
+% dropping we simply pass out an empty list. This maintains compatibility.
+if isfield(imExp, 'framesDropped')
+    framesDropped = imExp.framesDropped;
+else
+    framesDropped = [];
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %assignin('base','signalMaps',signalMaps)
 end

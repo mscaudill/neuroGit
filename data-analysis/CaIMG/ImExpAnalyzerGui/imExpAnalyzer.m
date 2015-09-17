@@ -1738,62 +1738,44 @@ hmsg = msgbox(['Plot Being Generated: Please Note', char(10), ...
         'The Plot is an Approximation until', char(10),...
         'all Rois have been drawn']);
     
-% use a try catch just in case there is an error in the users input that
-% causes a subfunction of signal mapper to fail.
-try
+
+[signalMaps, plotterType, framesDropped] = SignalMapper(imExp,...
+                                    state.stimVariable,...
+                                    state.roiSets, state.currentRoi,...
+                                    state.chToDisplay,...
+                                    state.runState, state.Led,...
+                                    state.neuropilRatio);
     
-    [signalMaps, plotterType] = SignalMapper(imExp, state.stimVariable,...
-        state.roiSets, state.currentRoi,...
-        state.chToDisplay,...
-        state.runState, state.Led,...
-        state.neuropilRatio);
+% get the number of open figures
+numFigs=length(findall(0,'type','figure'));
+% create a figure one greater than the number of open figures
+hfig = figure(numFigs+1);
     
-    % get the number of open figures
-    numFigs=length(findall(0,'type','figure'));
-    % create a figure one greater than the number of open figures
-    hfig = figure(numFigs+1);
-    
-    % Call the correct plotting routine
-    switch plotterType
+% Call the correct plotting routine
+switch plotterType
         
-        case 'fluorPlotter'
-            fluorPlotter2(signalMaps, state.stimVariable, imExp.stimulus,...
-                imExp.fileInfo, hfig);
-            close(hmsg)
+    case 'fluorPlotter'
+        fluorPlotter2(signalMaps, state.stimVariable, imExp.stimulus,...
+            imExp.fileInfo, hfig);
+        close(hmsg)
+        
+    case 'csPlotter'
+        csPlotter(signalMaps,'all',imExp.stimulus, imExp.fileInfo,...
+                  framesDropped, hfig)
+        
+        close(hmsg)
+        
+    otherwise
+        close(hmsg)
+        % Throw message error
+        hmsgErr = msgbox(['The selected stimulus variable', ...
+            'is not present in the imExp OR no Roi selected']);
+        pause(5)
+        % If user has not already closed msg close it now.
+        if ishandle(hmsgErr)
+            close(hmsgErr)
+        end
             
-        case 'csPlotter'
-            csPlotter(signalMaps,'all',imExp.stimulus, imExp.fileInfo,hfig)
-            
-            close(hmsg)
-            
-        otherwise
-            close(hmsg)
-            % Throw message error
-            hmsgErr = msgbox(['The selected stimulus variable', ...
-                'is not present in the imExp OR no Roi selected']);
-            pause(5)
-            % If user has not already closed msg close it now.
-            if ishandle(hmsgErr)
-                close(hmsgErr)
-            end
-            
-    end
-    
-catch 
-    % If something went wrong above close the previous msgbox and open a
-    % new one with a warning beep to alert user of the likely problem
-    close(hmsg)
-    close(hfig)
-    errMsg = msgbox(['An error occurred and is likely due to a'...
-                     char(10),'bad user input in the analyzer gui.'...
-                     char(10),'Check Stimulus Variable or LED Gui'...
-                     ' options']);
-    % leave the msg up for ten seconds then close if user has not done so
-    % already
-    pause(5)
-    if ishandle(errMsg)
-        close(errMsg)
-    end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

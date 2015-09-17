@@ -235,6 +235,12 @@ imExp.stimulus = stimulusStruct';
 %%%%%%%%%%%%%%%%%%%%% ADD IMAGING DEPTH TO IMEXP %%%%%%%%%%%%%%%%%%%%%%%%%%
 imExp.imagingDepth = state.imagingDepth;
 
+%%%%%%%%%%%%%%%%%% ADD THE DROPPED FRAME NUMS TO IMEXP %%%%%%%%%%%%%%%%%%%%
+% The dropping of frames will occur in the tiffLoader function called below
+% in Main loop 2 just prior to motion correction.
+imExp.framesDropped = state.framesToDrop;
+
+
 %%%%%%%%%%% IF ENCODER THEN ADD BEHAVIOR STRUCTURE TO IMEXP %%%%%%%%%%%%%%%
 if ~isnan(state.saveEncoder)
     % convert the boolean array to a cell (will have 1 row X

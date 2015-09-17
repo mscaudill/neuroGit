@@ -1,4 +1,5 @@
-function csPlotter(csSignalMaps, angles, stimulus, fileInfo, hfig)
+function csPlotter(csSignalMaps, angles, stimulus, fileInfo,...
+                   framesDropped, hfig)
 % CSPlotter plots the center-surround signals (nonLed and Led (if present)
 % in the csSignalMaps cell array passed from SignalMaps. Based on the user 
 % choice of angles (a number or 'all') csPlotter will return a plot of the 
@@ -19,12 +20,6 @@ function csPlotter(csSignalMaps, angles, stimulus, fileInfo, hfig)
 %you should have received a copy of the gnu general public license
 %along with this program.  if not, see <http://www.gnu.org/licenses/>.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Determine if LED map is present
-% chk angle argument
-% get the data organized for each map as a cell arrray across angles where
-% ech cell ele will containg a matrix numTrials x numConds
-% Calculate means and plot
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%% DETERMINE IF LED MAPS ARE PRESENT %%%%%%%%%%%%%%%%%%
@@ -266,9 +261,10 @@ for angleIndex = 1:numel(angles)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if size(time,2) > 1
             
-            % get the visual start and end times
-            visStart = stimTiming(1);
-            visEnd = stimTiming(1)+stimTiming(2);
+            % get the visual start and end times. Adiust the stimEpoch back
+            % to the left by numFramesDropped/frameRate
+            visStart = stimTiming(1)-(numel(framesDropped)/frameRate);
+            visEnd = visStart+stimTiming(2);
 
             hold on
             % create a horizontal vector for the stimulation times
