@@ -23,6 +23,11 @@ function [ zeroMeanedSignal ] = zeroMean( signal, varargin )
 %along with this program.  if not, see <http://www.gnu.org/licenses/>.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if isempty(signal)
+    zeroMeanedSignal = [];
+    return
+end
+
 % We perform a test of the number of variable inputs. If one then zeromean
 % using the entire signal, If 4 use only the specified time interval as
 % the dc offset. If anything else throw error.
