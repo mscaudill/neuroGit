@@ -954,8 +954,11 @@ function saveExp_Callback(hObject, eventdata, handles)
 global state
 global exper
 % call expSaverFunc to save the exper as type raw (see expSaverFunc.m in
-% fileUtils)
-expSaverFunc(state.stimFileNames, '', exper, 'raw')
+% fileUtils) Note we do not know if expType is cell-attached or whole-cell
+% so we use 'not specified' this could be improved upon by having the user
+% enter this into the gui.
+%%% CHECK THAT I WORK 10/20/2015
+expSaverFunc(state.stimFileNames, '', exper, 'not specified','raw')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

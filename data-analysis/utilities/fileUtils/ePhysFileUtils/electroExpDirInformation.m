@@ -24,6 +24,7 @@
 % Raw data and stimulus directories (prior to eExp creation)
 eDirInfo.DaqFileLoc = 'A:\MSC\Data\CSproject\rawData\';
 eDirInfo.StimFileLoc = 'A:\MSC\Data\CSproject\stimuli\';
+eDirInfo.rootDirLoc = 'A:\MSC\Data\CSproject\';
 
 %%%%%%%%%%%%%%%%%%%%% CELL ATTACHED DIRS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % root dir of cell attached containing dirs for raw and analyzed

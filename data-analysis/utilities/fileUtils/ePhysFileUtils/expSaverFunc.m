@@ -1,5 +1,5 @@
 function expSaverFunc( stimFileNames, ExpName, electroExp,...
-                        electroExpType, expStage, varagin)
+                        electroExpType, expStage, varargin)
 %expSaverFunc saves an electroRxp structure to a directory uniquely defined
 % by the ExpType, and the stage of processing (raw, analyzed)
 % INPUTS:                   stimFileNames: list of stimulus fileNames for
@@ -8,7 +8,8 @@ function expSaverFunc( stimFileNames, ExpName, electroExp,...
 %                                    has already been created
 %                           electroExp: the exp strucutre obj to be saved
 %                           electroExpType: string matching one of
-%                                       {'whole-cell', 'cell-attached', ''}
+%                                       {'whole-cell', 'cell-attached',
+%                                        'not specified'}
 %                           expStage: string matching one of {'raw',
 %                                                           'analyzed',''}
 %                           varagin: string matching one of
@@ -40,7 +41,7 @@ function expSaverFunc( stimFileNames, ExpName, electroExp,...
 electroExpDirInformation
 
 % Use a switch case statement to determine file save locations
-switch expType
+switch electroExpType
     
     case 'cell-attached'
         
@@ -81,6 +82,13 @@ switch expType
             % set target as whole-cell root dir
             expTargetLoc = eDirInfo.wholeCellElectroExpFileLoc;
         end
+        
+    case 'not specified'
+        % if the user has not specified cell-att or whole cell then we
+        % default save to rootDir
+        esxpTargetLoc = eDirInfo.rootDirLoc;
+        
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -110,6 +118,7 @@ switch expStage
         if ~isempty(ExpName)
             % split the ExpName on the underscores
             allStrings = regexp(ExpName,'_', 'split');
+            assignin('base','allStrings',allStrings)
             % obtain the date
             date = allStrings{1};
             % obtain the location and expType identifier
@@ -136,6 +145,7 @@ switch expStage
             [expTargetLoc,date,'_',locExpType,'_',...
                                         'electroExp_Analyzed','.mat'];
         end
+ 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%% CONSTRUCT PATH AND FILE NAME %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
