@@ -1,4 +1,5 @@
-function fluorPlotter2(fluorMap, stimVariable,stimulus, fileInfo, hfig)
+function fluorPlotter2(fluorMap, stimVariable,stimulus, fileInfo,...
+                       framesDropped, hfig)
 % fluorPlotter plots a time series of of fluroescence signals.
 % INPUTS                    : fluorMap a map object of percentage
 %                             fluorescent signals
@@ -220,9 +221,12 @@ end
 % To construct the stimulus epochs we will need to make two horizontal and
 % two vertical boundaries to create our shaded box.
 
-%Get the start and end times of the stimulus epochs
+%Get the start and end times of the stimulus epochs. Remember we need to
+%adjust the stim epoch time to the left to account for user selected
+%dropped frames
+stimStart = stimTiming(1) - (numel(framesDropped)/frameRate);
 epochStarts =...
-    stimTiming(1):sum(stimTiming):numel(nonLedKeys)*sum(stimTiming);
+    stimStart:sum(stimTiming):numel(nonLedKeys)*sum(stimTiming);
 
 % epoch ends are just epoch starts plus duration
 epochEnds = epochStarts + stimTiming(2);
@@ -290,7 +294,7 @@ if strcmp(stimVariable, 'Surround_Orientation')
 end
 
 % set the position of the xtick marks and labels
-xVals = stimTiming(1)+stimTiming(2)/2:sum(stimTiming):...
+xVals = stimStart+stimTiming(2)/2:sum(stimTiming):...
                                             numel(nonLedKeys)*sum(stimTiming);
 set(gca,'xTick',xVals)
 set(gca,'xTickLabel',keyStrs)
