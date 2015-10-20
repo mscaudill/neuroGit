@@ -20,18 +20,46 @@
 %located. It also sets where combined data/stim structures (called exps are
 %to be saved
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DATA DIRS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Raw data and stimulus directories (prior to eExp creation)
 eDirInfo.DaqFileLoc = 'A:\MSC\Data\CSproject\rawData\';
-
 eDirInfo.StimFileLoc = 'A:\MSC\Data\CSproject\stimuli\';
 
-eDirInfo.electroExpRawFileLoc = ...
+%%%%%%%%%%%%%%%%%%%%% CELL ATTACHED DIRS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% root dir of cell attached containing dirs for raw and analyzed
+% cell-attached exps
+eDirInfo.cellAttachedElectroExpFileLoc = ...
+            'A:\MSC\Data\CSproject\cellAttachedExps\';
+
+% Cell attached raw data directory (post eExp creation)
+eDirInfo.cellAttElectroExpRawFileLoc = ...
              'A:\MSC\Data\CSproject\cellAttachedExps\rawElectroExps\';
-            
-eDirInfo.electroExpAnalyzedFileLoc = ...
+% Cell attach analyzed data directory (post eExp analysis)            
+eDirInfo.cellAttElectroExpAnalyzedFileLoc = ...
              'A:\MSC\Data\CSproject\cellAttachedExps\analyzedElectroExps\';
          
-eDirInfo.electroExpWholeCellFileLoc = ...
+%%%%%%%%%%%%%%%%%%%%%%%%%% WHOLE-CELL DIRS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%       
+% root whole-cell directory containing dirs for both vclamp and iclamp exps
+eDirInfo.wholeCellElectroExpFileLoc = ...
             'A:\MSC\Data\CSproject\WholeCellExps';
+        
+%%% VCLAMP EXPS %%%
+% vclamp post eExp creation       
+eDirInfo.wholeCellElectroExpVclampRawFileLoc = ...
+            'A:\MSC\Data\CSproject\WholeCellExps\Vclamp\';
+% vclamp eExp post analysis
+eDirInfo.wholeCellElectroExpVclampAnalyzedFileLoc = ...
+            'A:\MSC\Data\CSproject\WholeCellExps\Vclamp_analyzed\';
+
+%%% ICALMP EXPS %%%
+% Iclamp post eExp creation       
+eDirInfo.wholeCellElectroExpIclampRawFileLoc = ...
+            'A:\MSC\Data\CSproject\WholeCellExps\Iclamp\';
+% vclamp eExp post analysis
+eDirInfo.wholeCellElectroExpIclampAnalyzedFileLoc = ...
+            'A:\MSC\Data\CSproject\WholeCellExps\Iclamp_analyzed\';
+        
+        
             
 eDirInfo.RoughFigLoc = 'G:\data\RoughFigs\';
 
