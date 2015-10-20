@@ -20,8 +20,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%% MONITOR INFORMATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 monitorInfo.screenNumber = 0;
 monitorInfo.screenDistcm = 25;
-monitorInfo.screenSizecmX = 51.4;          
-monitorInfo.screenSizecmY = 44.7;        
+monitorInfo.screenSizecmX = 47.7;          
+monitorInfo.screenSizecmY = 26.8;        
 monitorInfo.screenSizeDegX = 2*atan(monitorInfo.screenSizecmX/2/...
                                 monitorInfo.screenDistcm)*180/pi;
 monitorInfo.screenSizeDegY = 2*atan(monitorInfo.screenSizecmY/2/...
@@ -29,7 +29,8 @@ monitorInfo.screenSizeDegY = 2*atan(monitorInfo.screenSizecmY/2/...
 monitorInfo.screenSizePixX = 1920;
 monitorInfo.screenSizePixY = 1080;
 monitorInfo.degPerPix = monitorInfo.screenSizeDegX/...
-                            monitorInfo.screenSizePixX;
+                            monitorInfo.screenSizePixX
+a = monitorInfo.screenSizeDegY/monitorInfo.screenSizePixY                     
 
 monitorInfo.powerLawScaleFactor = .0001801;
 monitorInfo.gamma = 2.386;

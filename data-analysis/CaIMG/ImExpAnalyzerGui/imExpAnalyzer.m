@@ -1529,7 +1529,7 @@ global imExp
 % so they can draw rois to it. We will set the current roi set to be the
 % first roi set, meaning all rois drawn on the average image will be added
 % to roiSet 1.
-[Image] = multiStackMaxIntensity({imExp.correctedStacks(:,:).(['Ch',...
+[Image] = multiStackMaxIntensity({imExp.correctedStacks(4,:).(['Ch',...
                             num2str(state.chToDisplay)])},'uint16');
 
 %assignin('base','Image',Image)
@@ -1756,7 +1756,7 @@ switch plotterType
         
     case 'fluorPlotter'
         fluorPlotter2(signalMaps, state.stimVariable, imExp.stimulus,...
-            imExp.fileInfo, hfig);
+            imExp.fileInfo, framesDropped, hfig);
         close(hmsg)
         
     case 'csPlotter'

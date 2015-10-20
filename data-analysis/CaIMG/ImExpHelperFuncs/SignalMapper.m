@@ -219,7 +219,6 @@ switch Led{1}
                                         
         
     case false
-        
         % If the led was not shown then we compute the signals for each roi
         % without regard to led trials using the full imExp. THIS MIGHT
         % NEED TO BE CHANGED SO THE USER CAN PLOT ONLY NON LED TRIALS
@@ -241,16 +240,16 @@ switch Led{1}
         if any(ismember(twoDimStimuli,stimVariable))
             [~, signalMaps{1}, ~] = csFluorMap(imExp,...
                                           roiSets,currentRoi, chNumber,...
-                                          runState, neuropilRatio); 
+                                          runState, neuropilRatio);
+         
         % we also set the 2nd element (reserved for led maps) to be []
            signalMaps{2} = {[]};
            
            % We will also pass as an output the appropriate fluorescence
             % plotter that should be called to plot these maps                          
-            plotterType = 'CSPlotter';
+            plotterType = 'csPlotter';
         end
 end
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% RETURN DROPPED FRAMES  %%%%%%%%%%%%%%%%%%%%%%%
 % If the experiment contains user selected dropped frames then we will pass
 % those back out of the signal mapper. For imExps created prior to frame
@@ -262,6 +261,5 @@ else
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%assignin('base','signalMaps',signalMaps)
 end
 

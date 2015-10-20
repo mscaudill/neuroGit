@@ -28,8 +28,7 @@ function csPlotter(csSignalMaps, angles, stimulus, fileInfo,...
 % We will look at wheter signalMaps{2} (the led map container) is empty. If
 % not then we will plot both control and led trials togehter. This
 % currently does not give the user the choice of plotting one or the other.
-switch isempty(csSignalMaps{2})
-    case true
+if isempty(csSignalMaps{2}{1})
         % Only a non-led Map is present
         nonLedMap = csSignalMaps{1}{1};
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -94,8 +93,9 @@ switch isempty(csSignalMaps{2})
             end
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-    case false 
+end
+
+if ~isempty(csSignalMaps{2}{1}) 
         % Both a nonLed and LedMap are present in signalMaps
         nonLedMap = csSignalMaps{1}{1};
         LedMap = csSignalMaps{2}{1};
@@ -233,7 +233,9 @@ for angleIndex = 1:numel(angles)
                 [205/255,201/255,201/255],...
                 'LineWidth',1)
             
-            if ~isempty(csSignalMaps{2})
+            ylim([minVal,maxVal])
+            
+            if ~isempty(csSignalMaps{2}{1})
                 
                 hold on
                 

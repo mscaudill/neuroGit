@@ -227,7 +227,7 @@ allRoiImages = cellfun(@(r) poly2mask(r(:,1), r(:,2), imageDim(1),...
 % the rois in a single logical. We are going to use this to exclude
 % neuropild regions that overlap with rois in this image
 comboRoiImage = logical(sum(cat(3,allRoiImages{:}),3));
-%assignin('base','comboRoiLogicalImage', comboRoiLogicalImage)
+%assignin('base','comboRoiImage', comboRoiImage)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -236,7 +236,7 @@ comboRoiImage = logical(sum(cat(3,allRoiImages{:}),3));
 % We now will create a neuropil region for each roi. To do this we will get
 % the center and max radius of each roi and construct an annulus from two
 % circles. The inner circle will match the max radius of the roi and the
-% outer circle will be 20% greater.
+% outer circle will be 10um greater.
 
 % determine the center and the radius for each of the rois
 % simply take the mean of all the xs (stored in first col of each cell in
@@ -256,10 +256,10 @@ innerCircles = cellfun(@(center,radius)...
     [center(1)+radius*cos(radians);center(2)+radius*sin(radians)]',...
     centers, roiRadii, 'UniformOut',0);
 
-% create the outerCircles to be 20% larger (want to make 20 um!!!!)
+% create the outerCircles to be 10 um larger
 outerCircles = cellfun(@(center,radius)...
-    [center(1)+(radius+10)*cos(radians);...
-    center(2) + (radius+10)*sin(radians)]',centers, roiRadii,...
+    [center(1)+(radius+5)*cos(radians);...
+    center(2) + (radius+5)*sin(radians)]',centers, roiRadii,...
     'UniformOut',0);
 
 % finally create the neuropil annular regions by creating logical images
@@ -269,6 +269,7 @@ neuropilLogicalImages = cellfun(@(outer,inner)...
     logical(poly2mask(outer(:,1),outer(:,2),imageDim(1),...
     imageDim(2)) - poly2mask(inner(:,1),inner(:,2),imageDim(1),...
     imageDim(2))), outerCircles, innerCircles, 'UniformOut',0);
+%assignin('base','npLogicalImages', neuropilLogicalImages)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
