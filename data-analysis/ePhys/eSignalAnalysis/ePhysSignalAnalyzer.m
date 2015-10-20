@@ -1,18 +1,18 @@
-function ePhysSignalAnalyzer(varargin)
-% 
-% INPUTS:           VARARGIN: 
-%                          removeSpikes:   0 or 1 logical
+function ePhysSignalAnalyzer(expType, varargin)
+% ePhysSignalAnalyzer directs the user to whole-cell data and constructs
+% dataMaps of the data across stimulus conditions. It then computes metrics
+% about the data and saves them to the exp structure.
+% INPUTS:                  expType:        The experiment being analyzed
+%                                          (cs, ori, etc currently only cs)
+%               VARARGIN: 
+%                          removeSpikes:   0 or 1 logical (default 1)
 %                          runState:       a numeric 0, 1 or 2. Zero is
 %                                          non-running trials, 1 is running
-%                                          trials and 2 is all trials to be
-%                                          plotted
-%                          ledToPlot:      a numeric 0, 1 or 2. Zero means
-%                                          plot only control trials. One
-%                                          means plot only Led trials. Two
-%                                          means plot both types (default)
+%                                          trials and 2 is all trials
+%                                          (default 2)
 %                           dataOffSet:    offset in mV (applied to Ic
 %                                          data) in case of offset error
-%                                          during collection
+%                                          during collection (default 0)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %copyright (c) 2012  Matthew Caudill
 %
@@ -33,30 +33,25 @@ function ePhysSignalAnalyzer(varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%% BUILD AN INPUT PARSER %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% We start by building an input parser object for the varargin  supplied to
+% this function defining default values in case they are empty 
 % construct a parser object (builtin matlab class)
 p = inputParser;
 
-% define the default remove spikes setting
+
+% REMOVE SPIKES 
 defRemoveSpikes = true;
 % add the removeSpikes and the default value to the input parse obj. and
 % validate it is a logical
 addParamValue(p, 'removeSpikes',defRemoveSpikes, @islogical);
 
-% define the default run states to plot 0=non-running trials only, 1 =
-% running trials only, 2 = show all trials
+% RUN STATE
 defRunState = 2;
 % add the runState and the default value to the input parse obj. and
 % validate that it is a 0,1,2 using anonymous function
 addParamValue(p, 'runState', defRunState, @(x) ismember(x, [0,1,2]));
 
-% define the default LED setting. 0= only control trials, 1 = led only
-% trials, 2 = plot both led and control trials togehter
-defLedToPlot = 2;
-% add the led condition and the default value to the input parse obj. and
-% validate that it is a 0,1,2 using anonymous function
-addParamValue(p, 'ledToPlot', defLedToPlot, @(x) ismember(x,[0,1,2]));
-
-% define the default dataOffset to be 0;
+% DATA OFFSET
 defOffset = 0;
 % add the dataOffset and default value to the parse obj.
 addParamValue(p, 'dataOffset', defOffset, @isnumeric);
@@ -66,15 +61,18 @@ parse(p,varargin{:})
 % finally retrieve the variable arguments from the parsed inputs
 removeSpikes = p.Results.removeSpikes;
 runState = p.Results.runState;
-ledToPlot = p.Results.ledToPlot;
 dataOffset = p.Results.dataOffset;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% CALL EXP LOADER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Load pertinent substructures from a raw experiment and extract from cell
-% array.
+% We will now load the substructures from a Whole-cell Exp. Note we are
+% using the multiExpLoader which can load multiple exps but we only take
+% the first one selected since this function operates on one at a time.
+% This is implicit and should be fixed by supplying MultiExpLoader with a
+% variable argument that should say whether it is loading one or multiple
+% exps.
 [loadedExpCell, ExpName] = multiEexpLoader('wholeCell',...
                                         {'data','stimulus','behavior',...
                                         'fileInfo','spikeIndices'});
@@ -116,33 +114,16 @@ ledPresence = isfield(Exp.stimulus,'Led');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%% CALL EPHYSDATAMAP TO CONSTRUCT MAP OBJ(s) %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% We now call ePhysDataMap to create our map objects. If the user selected
-% to plot only led trials or to plot only non-Led trials we make a single
-% map called dataMap. If the user selected to plot both control and led
-% trials then we make two maps; dataMap for control trials and ledMap for
-% led trials.
+% We now call ePhysDataMap to create our map objects. If there is an led
+% present we will make two maps one for led trials and one for cntrl
+% trials
 
 % Initialize maps to be empty mapNs;
-dataMap = MapN();
 cntrlMap = MapN();
 ledMap = MapN();
 
-if ledPresence && ledToPlot ~= 2 || ~ledPresence
-    % create a map for the single led condition ( may be led or no led
-    % trials)
-    dataMap = ePhysDataMap(Exp.data,Exp.stimulus,stimVariable,...
-                                               Exp.behavior,...
-                                               Exp.fileInfo,...
-                                               Exp.spikeIndices,...
-                                               'runState',...
-                                               runState,'ledCond',...
-                                               ledToPlot,'dataOffset',...
-                                               dataOffset,...
-                                               'removeSpikes',...
-                                               removeSpikes);
-
-elseif ledPresence && ledToPlot == 2
-    % create two maps, one for cntrl trials and the other holding ledTrials
+if ledPresence
+    % create a cntrl map for non-led trials
     cntrlMap = ePhysDataMap(Exp.data,Exp.stimulus,stimVariable,...
                                                Exp.behavior,...
                                                Exp.fileInfo,...
@@ -153,7 +134,8 @@ elseif ledPresence && ledToPlot == 2
                                                dataOffset,...
                                                'removeSpikes',...
                                                removeSpikes);
-                                           
+    
+    % create a map of data corresponding to the led trials
     ledMap = ePhysDataMap(Exp.data,Exp.stimulus,stimVariable,...
                                                Exp.behavior,...
                                                Exp.fileInfo,...
@@ -164,10 +146,23 @@ elseif ledPresence && ledToPlot == 2
                                                dataOffset,...
                                                'removeSpikes',...
                                                removeSpikes);
+
+elseif ~ledPresence
+    % create only a cntrlMap
+    cntrlMap = ePhysDataMap(Exp.data,Exp.stimulus,stimVariable,...
+                                               Exp.behavior,...
+                                               Exp.fileInfo,...
+                                               Exp.spikeIndices,...
+                                               'runState',...
+                                               runState,'ledCond',...
+                                               0,'dataOffset',...
+                                               dataOffset,...
+                                               'removeSpikes',...
+                                               removeSpikes);
 end
 
-% Lastly combine all the maps into a single cell array
-allMaps = {dataMap,cntrlMap,ledMap};
+% Lastly combine the maps into a single cell array
+allMaps = {cntrlMap,ledMap};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -216,6 +211,32 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 assignin('base','meanSignals',meanSignals)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%% STORE EACH MAP TO THE EXP %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Add the cntrl map
+Exp.dataMaps.cntrlMap = cntrlMap;
+
+% If an led was shown add the led map
+if ledPresence
+    Exp.dataMaps.ledMap = ledMap;
+end
+
+% Add the meanSignals as well (recall pos 1 wil be cntrl data and pos 2
+% will be led data if present
+Exp.meanSignals = meanSignals;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% COMPUTE EPHYSIOLOGY METRICS %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Here I need to call csNormed_PeakCurrent, csNormed_charge and 
+% csNormed_F1Amp. Use switch with expType
+
+% SAVE EPHYSIOL METRICS
+
+% WRITE A FUNCTION LIKE IMEXPSAVER TO SAVE TO ANALYZED DIR
 
 end
 
