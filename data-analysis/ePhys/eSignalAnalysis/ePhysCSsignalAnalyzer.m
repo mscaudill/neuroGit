@@ -230,8 +230,6 @@ for map = 1:numel(signalMatrices)
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-assignin('base','meanSignals',meanSignals)
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%% STORE EACH MAP TO THE EXP %%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -268,13 +266,13 @@ Exp.metrics.csNormedCharges = csNormedCharge(Exp.meanSignals, stimTiming,...
 %%%%%%%%%%%%%%%%%%%%%%%%%%% NORMALIZED F1 AMPLITUDES %%%%%%%%%%%%%%%%%%%%%%
 [Exp.metrics.csNormedF1Amplitudes, Exp.metrics.csF1Fits] = ...
     csNormedF1Amplitude(Exp.meanSignals,stimTiming, ...
-                        Exp.stimlus(1,1).Center_Temporal_Frequency,...
+                        Exp.stimulus(1,1).Center_Temporal_Frequency,...
                         samplingFreq);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% SAVE EXP_ANALYZED %%%%%%%%%%%%%%%%%%%%%%%%%%%
 assignin('base','Exp_analyzed',Exp)
-%expSaverFunc('',ExpName{1},Exp,'whole-cell','analyzed','Vclamp')
+expSaverFunc('',ExpName{1},Exp,'whole-cell','analyzed','Vclamp')
 
 end
 

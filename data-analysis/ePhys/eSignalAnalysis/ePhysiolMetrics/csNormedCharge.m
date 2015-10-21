@@ -39,15 +39,25 @@ stimEndIdx = round(samplingFreq*(stimTiming(1)+stimTiming(2)));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%% COMPUTE THE AREA UNDER THE CURVE (CHARGE) %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for map=1:numel(meanSignals)
+for map = 1:numel(meanSignals)
     if ~isempty(meanSignals{map})
-        normedCharges{map} = ...
+        charges{map} = ...
             cellfun(@(x) trapz(x(stimStartIdx:stimEndIdx)/samplingFreq),...
                                 meanSignals{map});
     else
-        normedCharges{map} = [];
+        charges{map} = [];
+    end
 end
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% NORMALIZE CHARGES BY CENTER ALONE %%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for m = 1:numel(meanSignals)
+    if ~isempty(meanSignals{m})
+        normedCharges{m} = charges{m}./charges{m}(1);
+    else
+        normedCharges{m} = [];
+    end
+end
 
 end
 

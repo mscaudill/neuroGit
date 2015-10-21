@@ -118,7 +118,7 @@ switch expStage
         if ~isempty(ExpName)
             % split the ExpName on the underscores
             allStrings = regexp(ExpName,'_', 'split');
-            assignin('base','allStrings',allStrings)
+            
             % obtain the date
             date = allStrings{1};
             % obtain the location and expType identifier

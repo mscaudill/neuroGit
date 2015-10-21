@@ -97,11 +97,14 @@ for map = 1:numel(meanSignals)
 
         % plot the signals and then plot the sine fits across all conds
         for cond = 1:numel(meanSignals{1})
-            subplot(1,numel(meanSignals{map}),cond)
+            ax{cond} = subplot(1,numel(meanSignals{map}),cond);
             plot(time,meanSignals{map}{cond},'k-')
             hold all
             plot(fitTime,csF1Fits{1}{cond}{3},'r-')
         end
     end
 end
+
+% link the axes of all the subplots
+linkaxes([ax{1},ax{2},ax{3},ax{4},ax{5}],'xy')
 
