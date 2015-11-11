@@ -104,15 +104,19 @@ for i = 1:size(table,1)
         
     % Check if row is Contrast row and the check whether start and end vals
     % are the same or the num steps is 1 or less. If so add to constants
-    elseif strcmp(fieldname{i},'Contrast') && table{i,2}==table{i,3} ||...
+    elseif strcmp(fieldname{i},'Contrast') && table{i,2}==table{i,4} ||...
             strcmp(fieldname{i},'Contrast') && table{i,4} <=1
         constants.(fieldname{i}) = table{i,2};
         
     % Else if row is contrast row and start ~= End then add to paramsStruct
-    elseif strcmp(fieldname{i},'Contrast') && table{i,2}~=table{i,3} &&...
+    elseif strcmp(fieldname{i},'Contrast') && table{i,2}~=table{i,4} &&...
             table{i,4}>1 % more than one step is needed to be a parameter
-        params.Contrast = logspace(log10(table{i,2}),log10(table{i,3}),...
-                                    table{i,4});
+        % we will loop over the number of steps creating a contrast of base
+        % table{i,2} (usually base 2)
+        for c = 1:table{i,3}
+            contrast(c) = table{i,2}^c;
+        end
+        params.Contrast = contrast;
                                 
     % Check whether start and end vals are the same. If so add to constants
     elseif numel(cell2mat(table(i,2:end))) >2 && table{i,2}==table{i,4}
