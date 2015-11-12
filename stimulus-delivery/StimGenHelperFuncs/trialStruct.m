@@ -102,20 +102,20 @@ for i = 1:size(table,1)
     elseif numel(cell2mat(table(i,2:end))) <= 2 % 2 element rows
         constants.(fieldname{i}) = horzcat(table{i,2:4});
         
-    % Check if row is Contrast row and the check whether start and end vals
-    % are the same or the num steps is 1 or less. If so add to constants
-    elseif strcmp(fieldname{i},'Contrast') && table{i,2}==table{i,4} ||...
-            strcmp(fieldname{i},'Contrast') && table{i,4} <=1
-        constants.(fieldname{i}) = table{i,2};
+    % Check if row is Contrast row and the check whether exponent 1 equals
+    % exponent 2
+    elseif strcmp(fieldname{i},'Contrast') && table{i,3} == table{i,4}
+        % The constant contrast will be the highest contrast or 1
+        constants.(fieldname{i}) = min(table{i,2}^table{i,4},100)/100;
         
-    % Else if row is contrast row and start ~= End then add to paramsStruct
-    elseif strcmp(fieldname{i},'Contrast') && table{i,2}~=table{i,4} &&...
-            table{i,4}>1 % more than one step is needed to be a parameter
-        % we will loop over the number of steps creating a contrast of base
-        % table{i,2} (usually base 2)
-        for c = 1:table{i,3}
-            contrast(c) = table{i,2}^c;
+    % Else if row is contrast and exp1 ~= exp 2
+    elseif strcmp(fieldname{i},'Contrast') && table{i,3} ~= table{i,4}
+        % we will loop over the exponent range and construct the contrast
+        for exponent = table{i,3}:table{i,4}
+            contrast(exponent) = table{i,2}^exponent/100;
         end
+        % we limit the contrast to values <= 1 and use one only once
+        contrast = unique(min(contrast,1));
         params.Contrast = contrast;
                                 
     % Check whether start and end vals are the same. If so add to constants

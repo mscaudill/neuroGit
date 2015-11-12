@@ -29,8 +29,7 @@ monitorInfo.screenSizeDegY = 2*atan(monitorInfo.screenSizecmY/2/...
 monitorInfo.screenSizePixX = 1920;
 monitorInfo.screenSizePixY = 1080;
 monitorInfo.degPerPix = monitorInfo.screenSizeDegX/...
-                            monitorInfo.screenSizePixX
-a = monitorInfo.screenSizeDegY/monitorInfo.screenSizePixY                     
+                            monitorInfo.screenSizePixX;                     
 
 monitorInfo.powerLawScaleFactor = .0001801;
 monitorInfo.gamma = 2.386;
