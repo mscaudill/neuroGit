@@ -74,7 +74,7 @@ imExp = imExpCreate(state);
 % We now want to compare the inputted image files with the corrected stacks
 % in the imExp. To do this we need to call tiffloader on the input
 % tiffFiles and store all of them to a cell array
-[inputExtremas,inputTiffs] = cellfun(@(x)...
+[~,inputTiffs] = cellfun(@(x)...
                     tiffLoader(state.imagePath, x, state.chsToSave),...
                     state.imageFileNames,'UniformOut',0);
  %%%%%% reshape the input tiffs to a single cell array
@@ -87,8 +87,7 @@ imExp = imExpCreate(state);
 rotStacks = imExp.correctedStacks';
 % now we will extract the chsToSave and save to a cell array
 outputTiffs = {rotStacks(:,:).Ch2};
-assignin('base','outputTiffs',outputTiffs)
-assignin('base','inputTiffs',inputTiffs)
+
 % now we will do a subtraction of the output and input tiffs and return the
 % max. If they are the same the max should be 0. Note we will flatten the
 % input and output stacks to speed up
@@ -97,9 +96,60 @@ for stack = 1:numel(inputTiffs)
                                 [inputTiffs{stack}{state.chsToSave}(:)]);
 end
 unitResults.stackDiffs = stackDiffs;
-assignin('base','unitResults',unitResults)
+plot(stackDiffs);
+xlabel('stack #')
+ylabel('In/Out frame differences')
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%% COMPARE INPUT STIM FILES WITH OUTPUT STIM STRUCT %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% We now want to compare the incoming stimulus files with the stimulus
+% structure created by imExpCreate
 
-
+% First we get all of the input stimstructs
+for name = 1:numel(state.stimFileNames)
+    % load the trials structure
+    load(fullfile(state.stimFileLoc,state.stimFileNames{name}))
+    % save them to a cell array
+    inputTrialsCell{name} = trials;
+    % clear trials to avoid confusion with next loaded trials
+    clear trials
 end
 
+% reshape the input trials cell into single structure organized by file
+% along rows and triggers along cols
+inputStimuli = [inputTrialsCell{:}]';
+% Now we want to get the trials strucutre from the imExp to compare with
+outputStimuli = imExp.stimulus;
+
+stimStructEquality = isequal(inputStimuli,outputStimuli);
+
+unitResults.stimStructEquality = stimStructEquality;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% CHECK THE ORDER OF THE FILENAMES %%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% As a final check we will check the order of the input stimFileNames,
+% input dataFileNames against to output stimFileNames and output
+% dataFileNames.
+inputStimFileNames = state.stimFileNames;
+inputImageFileNames = state.imageFileNames;
+
+outputStimFileNames = {imExp.fileInfo(:).stimFileName};
+outputImageFileNames = [imExp.fileInfo(:).imageFileNames];
+
+% Save these to unitResults for inspection
+unitResults.inputStimFileNames = inputStimFileNames;
+unitResults.inputImageFileNames = inputImageFileNames;
+unitResults.outputStimFileNames = outputStimFileNames;
+unitResults.outputImageFileNames = outputImageFileNames;
+
+% Perform equality test
+unitResults.stimFileNameEquality = ...
+                           isequal(inputStimFileNames,outputStimFileNames);
+unitResults.imageFileNamesEquality = ...
+                         isequal(inputImageFileNames,outputImageFileNames);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+end
