@@ -1,7 +1,7 @@
 function [surroundOriIndex, surroundGains, suppressionIndex ] =...
                         scsMetrics(signalMaps, cellTypeOfInterest,...
                                    roiSetNum, roiNum, angle,...
-                                   stimulus, fileInfo)
+                                   stimulus, fileInfo,framesDropped)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %copyright (c) 2013  Matthew Caudill
 %
@@ -60,7 +60,7 @@ function [surroundOriIndex, surroundGains, suppressionIndex ] =...
 % Call the area calculator to return the areas for all angles and all
 % conditions of the surround
 [meanAreas, ~, roiKeys] = areaCalculator(signalMaps, roiSetNum, roiNum,...
-                                         stimulus, fileInfo);
+                                         stimulus, fileInfo, framesDropped);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
