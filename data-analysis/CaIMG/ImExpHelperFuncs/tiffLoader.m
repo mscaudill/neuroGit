@@ -186,7 +186,7 @@ for ch = 1:numel(chsToSave)
 end
 
 
-assignin('base','matrices',tiffCell);
-assignin('base','extrema',stackExtrema);
+%assignin('base','matrices',tiffCell);
+%assignin('base','extrema',stackExtrema);
 end
 
