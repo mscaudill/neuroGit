@@ -1,7 +1,7 @@
 function [meanAreas, stdAreas, roiKeys, areaMat] = areaCalculator(signalMaps,...
                                                         roiSetNum,...
                                                         roiNum,stimulus,...
-                                                        fileInfo)
+                                                        fileInfo,framesDropped)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %copyright (c) 2012  Matthew Caudill
 %
@@ -66,7 +66,6 @@ function [meanAreas, stdAreas, roiKeys, areaMat] = areaCalculator(signalMaps,...
 % Get the mapObj for this roi specified byt the roiSetNum and
 % roiNum
 roiMapObj = signalMaps{roiSetNum}{roiNum};
-
 % get all the signals (map values) from the roiMapObj
 roiSignals = roiMapObj.values;
 
@@ -82,9 +81,10 @@ assignin('base','roiSignals',roiSignals)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We will integrate the signals only during the stimulus time window so we
 % need to calculate the start and end frames of the stimulus window
-startFrame = round(stimulus(1,1).Timing(1)*fileInfo(1,1).imageFrameRate);
-endFrame = round((stimulus(1,1).Timing(1) + ...
-                  stimulus(1,1).Timing(2))*fileInfo(1,1).imageFrameRate);
+startFrame = floor(stimulus(1,1).Timing(1)*fileInfo(1,1).imageFrameRate-...
+                   numel(framesDropped > 0));
+endFrame = startFrame + floor(stimulus(1,1).Timing(2)*...
+                              fileInfo(1,1).imageFrameRate);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
