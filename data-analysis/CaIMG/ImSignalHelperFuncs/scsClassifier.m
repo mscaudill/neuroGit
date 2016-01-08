@@ -1,7 +1,8 @@
 function [maxAreaAngle, maxSurroundAngle, nSigma, classification, threshold] = ...
                         scsClassifier(signalMaps, cellTypeOfInterest,...
                                       roiSetNum, roiNum, stimulus,...
-                                      fileInfo, minNSigma, mThreshold)
+                                      fileInfo, minNSigma, mThreshold,...
+                                      framesDropped)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %copyright (c) 2013  Matthew Caudill
 %
@@ -66,9 +67,10 @@ function [maxAreaAngle, maxSurroundAngle, nSigma, classification, threshold] = .
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % calculate the stimulation frames
-startFrame = round(stimulus(1,1).Timing(1)*fileInfo(1,1).imageFrameRate);
-endFrame = round((stimulus(1,1).Timing(1) + ...
-                  stimulus(1,1).Timing(2))*fileInfo(1,1).imageFrameRate);
+startFrame = floor(stimulus(1,1).Timing(1)*fileInfo(1,1).imageFrameRate-...
+                   numel(framesDropped > 0));
+endFrame = startFrame + floor(stimulus(1,1).Timing(2)*...
+                              fileInfo(1,1).imageFrameRate);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%% CALL AREA CALCULATOR AND LOCATE MAX CENTER AREA INDEX %%%%%%%%%%%%
@@ -76,7 +78,7 @@ endFrame = round((stimulus(1,1).Timing(1) + ...
 % Call the area calculator to return the areas for all angles and all
 % conditions of the surround
 [meanAreas, ~, roiKeys] = areaCalculator(signalMaps, roiSetNum, roiNum,...
-                                         stimulus, fileInfo);
+                                         stimulus, fileInfo,framesDropped);
 % Depending on the cellType we will calculate the max angle differently
 % (although later we may unify be always requiring max angle at
 % max(sum(co,c1,c2,I).
