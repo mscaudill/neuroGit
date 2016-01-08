@@ -82,6 +82,8 @@ set(handles.encoderOffset,'String',num2str(state.encoderOffset));
 set(handles.encoderThreshold,'String',num2str(state.encoderThreshold));
 % set the encoder percentage
 set(handles.encoderPercentage,'String',num2str(state.encoderPercentage));
+% set the framesToRemove
+set(handles.framesToRemove,'String',num2str(state.framesToDrop));
 
 % Update handles structure
 guidata(hObject, handles);
@@ -153,7 +155,7 @@ state.stimFileNames = get(handles.stimFileNamesBox,'String');
 % stimFileNames
 missingTriggers = cell(1,numel(state.stimFileNames));
 state.missingTriggers = cellfun(@(t) [0], missingTriggers,'UniformOut',0);
-assignin('base','state',state)
+%assignin('base','state',state)
 
 % set the current stimFile active to be the first one in the stimFileNames
 % list box
