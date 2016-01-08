@@ -123,7 +123,7 @@ try
     % HIDE CURSOR FROM SCREEN
     HideCursor;
     % OPEN A SCREEN WITH A BG COLOR OF GRAY (RETURN POINTER W)
-	[w, screenRect]=Screen(screenNumber,'OpenWindow', grayPix);
+	[w, screenRect]=Screen('OpenWindow',screenNumber, grayPix);
 %%%%%%%%%%%%%%%%%%%%%%%%% PREP SCREEN FOR DRAWING %%%%%%%%%%%%%%%%%%%%%%%%%
 
 % SCRIPT PRIORITY LEVEL
@@ -398,6 +398,14 @@ ParPortTrigger;
     % OBJECTS WILL REMAIN IN MEMORY FOR SOME TIME AND ULTIMATELY LEAD TO
     % JAVA OUT OF MEMORY ERRORS!!!
     Screen('Close', gratingtex{trial})
+    end
+    
+    % If keyboard was pressed to escape attempt close of last texture
+    if exitLoop
+        try
+            Screen('Close',gratingtex{trial})
+        catch
+        end
     end
     
     % Restore normal priority scheduling in case something else was set
