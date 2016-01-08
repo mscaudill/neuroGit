@@ -12,10 +12,11 @@ state.missingTriggers = {};
 state.triggerNumber = 1;
 state.chToDisplay = 2;
 state.chsToSave = [2];
+state.imagingDepth = [];
 state.saveEncoder = [];
 state.chsToCorrect = [2];
 state.scaleFactor = 1;
-state.framesToRemove = [1:4];
+state.framesToDrop = [1:4];
 
 %initialize the encoder options
 state.encoderOffset = 0.2;
