@@ -377,6 +377,8 @@ else % We have a triggered stimulus and need to save the trials structure
             GaussSimpleCenterSurround(trials)
         case 'Single Angle CS'
             SingleAngleCS(trials)
+        case 'Annular Center-surround Grating'
+            AnnularSimpleCenterSurround(trials)
     end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
