@@ -1,4 +1,5 @@
-function signal = deltaFbyF(fluorVals, corrFluorVals, stimTiming, frameRate)
+function signal = deltaFbyF(fluorVals, corrFluorVals, stimTiming,...
+                            frameRate, baselineFrames)
 % deltaFbyF calculates the percentage change in fluorescence during a
 % visual stimulus from a set of fluor values calculated as the mean pixel
 % intensity within an roi - neuropil
@@ -9,6 +10,7 @@ function signal = deltaFbyF(fluorVals, corrFluorVals, stimTiming, frameRate)
 %                         delay,presentation,wait
 %                       : frameRate, the rate at which the image stack was
 %                         collected
+%                       : baseline frames, frames to use as the baseline
 % OUTPUTS               : signal, an array of the mean fluorescent
 %                         percentage change
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -38,13 +40,19 @@ function signal = deltaFbyF(fluorVals, corrFluorVals, stimTiming, frameRate)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%% CALCULATE PRESTIMULUS CORRECTED MEAN SIGNAL %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-preStimMean = mean(corrFluorVals(1:floor(stimTiming(1)*frameRate)));
+% If the user left blank the baseline frames to use then we take frame one
+% up to the first stimulus frame.
+if isempty(baselineFrames)
+    preStimMean = mean(corrFluorVals(1:floor(stimTiming(1)*frameRate)));
+else
+    preStimMean = mean(corrFluorVals(baselineFrames));
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%% CALCULATE UNCORRECTED PRESTIMULUS SIGNAL %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-uncorrPreStimMean = mean(fluorVals(1:floor(stimTiming(1)*frameRate)));
+uncorrPreStimMean = mean(fluorVals(1:floor((stimTiming(1))*frameRate)));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

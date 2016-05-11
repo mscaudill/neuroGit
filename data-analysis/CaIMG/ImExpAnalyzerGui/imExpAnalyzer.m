@@ -22,7 +22,7 @@ function varargout = imExpAnalyzer(varargin)
 % selected regions of interest. It saves the ROIs and the fluorescent
 % signals to the imExpStructure.
 %
-% Last Modified by GUIDE v2.5 15-Jul-2014 12:13:16
+% Last Modified by GUIDE v2.5 10-May-2016 15:21:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -159,6 +159,12 @@ set(handles.neuropilFactor,'String', num2str(state.neuropilRatio));
 set(handles.LedChkBox,'Value',state.Led{1})
 
 set(handles.ledTrialsBox,'String', state.Led{2});
+
+set(handles.noLedBaselineFrames, 'String',...
+    num2str(state.noLedBaseline))
+
+set(handles.ledBaselineFrames, 'String',...
+    num2str(state.ledBaseline))
 
 set(handles.notesBox,'String', state.notes);
 
@@ -1715,6 +1721,25 @@ else
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%% LED AND NO LED BASELINE FRAMES CALLBACK %%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The baseline frames determines what frames will be used for the baseline
+% in the no led and led conditions. We get those frames for passing to the
+% the signal mapper which ultimately constructs our df/f plots.
+
+function noLedBaselineFrames_Callback(hObject, eventdata, handles)
+global state
+% When the user enters a new set of frames we need to get that and store to
+% state
+state.noLedBaseline = str2num(get(handles.noLedBaselineFrames,'String'));
+                                
+function ledBaselineFrames_Callback(hObject, eventdata, handles)
+global state
+state.ledBaseline = str2num(get(...
+                                    handles.ledBaselineFrames,'String'));                          
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%% MEAN DF/F CALLBACK %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1744,7 +1769,9 @@ hmsg = msgbox(['Plot Being Generated: Please Note', char(10), ...
                                     state.roiSets, state.currentRoi,...
                                     state.chToDisplay,...
                                     state.runState, state.Led,...
-                                    state.neuropilRatio);
+                                    state.neuropilRatio,...
+                                    state.noLedBaseline,...
+                                    state.ledBaseline);
     
 % get the number of open figures
 numFigs=length(findall(0,'type','figure'));
@@ -1877,6 +1904,9 @@ imExp.signalMaps = SignalMapper( imExp, state.stimVariable,...
                                  state.roiSets, [], state.chToDisplay,...
                                  state.runState,state.Led,...
                                  state.neuropilRatio);
+                             
+imExp.noLedBaselineFrames = state.noLedBaseLineFrames;
+imExp.ledBaselineFrames = state.ledBaselineFrames;
 
 % We will now add the users notes to the imExp                             
 imExp.notes = state.notes;
@@ -2113,5 +2143,26 @@ function Untitled_1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% --- Executes during object creation, after setting all properties.
+function noLedBaselineFrames_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to noLedBaselineFrames (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
 
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 
+% --- Executes during object creation, after setting all properties.
+function ledBaselineFrames_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ledBaselineFrames (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
