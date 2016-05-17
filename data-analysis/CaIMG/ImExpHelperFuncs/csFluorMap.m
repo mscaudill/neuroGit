@@ -416,7 +416,7 @@ if isempty(currentRoi)
             % fluorescence during visual stimulation
             dFByF{roi}{imageStack} = deltaFbyF(fluorVals, corrFluorVals,...
                 imExp.stimulus(1,1).Timing,...
-                imExp.fileInfo(1,1).imageFrameRate);
+                imExp.fileInfo(1,1).imageFrameRate, baselineFrames);
         end
     end
     

@@ -1762,7 +1762,10 @@ assignin('base','analyzerState',state)
 hmsg = msgbox(['Plot Being Generated: Please Note', char(10), ...
         'The Plot is an Approximation until', char(10),...
         'all Rois have been drawn']);
-    
+
+% Get the current roi number 
+roiIndex = get(handles.roiNamesListBox,'Value');
+roiSet = get(handles.roiSetListBox, 'Value');
 
 [signalMaps, plotterType, framesDropped] = SignalMapper(imExp,...
                                     state.stimVariable,...
@@ -1788,7 +1791,7 @@ switch plotterType
         
     case 'csPlotter'
         csPlotter(signalMaps,'all',imExp.stimulus, imExp.fileInfo,...
-                  framesDropped, hfig)
+                  framesDropped, hfig, roiSet, roiIndex, state.imExpName)
         
         close(hmsg)
         
@@ -1903,10 +1906,11 @@ imExp.SignalRunState = state.runState;
 imExp.signalMaps = SignalMapper( imExp, state.stimVariable,...
                                  state.roiSets, [], state.chToDisplay,...
                                  state.runState,state.Led,...
-                                 state.neuropilRatio);
+                                 state.neuropilRatio,state.noLedBaseline,...
+                                 state.ledBaseline);
                              
-imExp.noLedBaselineFrames = state.noLedBaseLineFrames;
-imExp.ledBaselineFrames = state.ledBaselineFrames;
+imExp.noLedBaselineFrames = state.noLedBaseline;
+imExp.ledBaselineFrames = state.ledBaseline;
 
 % We will now add the users notes to the imExp                             
 imExp.notes = state.notes;

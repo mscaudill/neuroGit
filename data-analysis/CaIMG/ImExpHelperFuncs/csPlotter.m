@@ -1,5 +1,5 @@
 function csPlotter(csSignalMaps, angles, stimulus, fileInfo,...
-                   framesDropped, hfig)
+                   framesDropped, hfig, roiSet, roiIndex, imExpName)
 % CSPlotter plots the center-surround signals (nonLed and Led (if present)
 % in the csSignalMaps cell array passed from SignalMaps. Based on the user 
 % choice of angles (a number or 'all') csPlotter will return a plot of the 
@@ -197,6 +197,16 @@ end
 % figure to draw to
 if numel(angles) > 1
     set(hfig,'Position',[198, 99, 1549, 879]);
+end
+
+if ~isempty(roiSet) && ~isempty(roiIndex)
+    Supertitle = [strrep(imExpName,'_','-'), ' ROI:', num2str(roiSet),...
+                '-',num2str(roiIndex)];
+            
+    annotation('textbox', [0 0.9 1 0.1], ...
+        'String', Supertitle, ...
+        'EdgeColor', 'none', ...
+        'HorizontalAlignment', 'center', 'fontWeight', 'Bold')
 end
 
 % We will loop through the angles and the conditions and make a subplot of
