@@ -231,7 +231,8 @@ switch Led{1}
             
            [~, signalMaps{1}, ~] = fluorMap(imExp, stimVariable,...
                                           roiSets,currentRoi, chNumber,...
-                                          runState, neuropilRatio); 
+                                          runState, neuropilRatio,...
+                                          noLedBaseline); 
         % we also set the 2nd element (reserved for led maps) to be []
            signalMaps{2} = {[]};
         
@@ -244,7 +245,8 @@ switch Led{1}
         if any(ismember(twoDimStimuli,stimVariable))
             [~, signalMaps{1}, ~] = csFluorMap(imExp,...
                                           roiSets,currentRoi, chNumber,...
-                                          runState, neuropilRatio);
+                                          runState, neuropilRatio,...
+                                          noLedBaseline);
          
         % we also set the 2nd element (reserved for led maps) to be []
            signalMaps{2} = {[]};
