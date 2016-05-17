@@ -41,13 +41,13 @@ function AnnularSimpleCenterSurround(trials)
 %               'Center Orientation', 270, 45, 270;...
 %               'Surround Condition', 1, 1, 5;...
 %               'Stimulus Center (degs)', 0, 0, [];...
-%               'Timing (delay,duration,wait) (s)', 1, 2, 1;...
+%               'Timing (delay,duration,wait) (s)', 1, 2, 5;...
 %               'Blank', 0, [], [];... 
 %               'Randomize', 0, [], [];...
-%               'Interleave', 0, [], [];
+%               'Interleave', 1, [], [];
 %               'Repeats', 0, [], [];...
 %               'Initialization Screen',2,[],[];...
-%               'Interleave Timing',1, 2, 10};
+%               'Interleave Timing',1, 2, 4};
 %  stimType = 'Annular Simple Center-surround Grating';
 %     
 %  end
@@ -120,9 +120,8 @@ try
     % HIDE CURSOR FROM SCREEN
     HideCursor;
     % OPEN A SCREEN WITH A BG COLOR OF GRAY (RETURN POINTER W)
-        [w, screenRect]=Screen(screenNumber,'OpenWindow', grayPix);
-    
-    
+    [w, screenRect]=Screen(screenNumber,'OpenWindow',grayPix);
+        
     % We are going to use the alpha channel (R,G,B,alpha) which controls 
     % tranparencies to 'blend' gratings at boundaries. We first assert that
     % the graphics card supports this blending:
@@ -146,7 +145,7 @@ try
     priorityLevel=MaxPriority(w);
     Priority(priorityLevel);
 
-% INTERFRAME INTERVAL INFO   
+    % INTERFRAME INTERVAL INFO   
     % Get the montior inter-frame-interval 
     ifi = Screen('GetFlipInterval',w);
     
@@ -156,24 +155,24 @@ try
     
     waitframes = 1; %I expect most new computers can handle updates at ifi
     ifiDuration = waitframes*ifi;
-    
+   
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   %%%%%%%%%%%%%%%%%%%%% CONSTRUCT AND DRAW TEXTURES %%%%%%%%%%%%%%%%%%%%%%
+   %%%%%%%%%%%%%%%%%%%%% CONSTRUCT & DRAW TEXTURES %%%%%%%%%%%%%%%%%%%%%%%%
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    % This is the main body of the code. We will loop through the trials
-   % structures and construct each texture from the stimulus paprameters of
-   % each trial and execute the drawing in a while loop. All of this must
-   % be done in a single loop becasue we need to close the textures in the
-   % trial loop after using each texture becasue otherwise they will hang
-   % around in memory and cause the familiar Java runtime error: Out of
-   % memory.
-    
+   % structures and construct a surround grating, a mask, a center grating
+   % and an inner mask from the stimulus paprameters of each trial and
+   % execute the drawing in a while loop. All of this must be done in a
+   % single loop becasue we need to close the textures in the trial loop
+   % after using each texture becasue otherwise they will hang around in
+   % memory and cause the familiar Java runtime error: Out of memory.
+   
    % Exit Codes and initialization
     exitLoop=0; %This is a flag indicating we need to break from the trials
                 % structure loop below. The flag becomes true (=1) if the
                 % user presses any key
     
-    % MAIN LOOP OVER TRIALS TO CONSTRUCT TEXS AND DRAW THEM
+    % MAIN LOOP OVER TRIALS TO DRAW TEXS
     for trial=1:numel(trials)
         if exitLoop==1;
             break;
@@ -187,87 +186,80 @@ try
         duration = trials(trial).Timing(2);
         wait = trials(trial).Timing(3);
         
-        %%%%%%%%%%%%%%%%%%%%%% CONSTRUCT TEXTURES %%%%%%%%%%%%%%%%%%%%%%%%%
-        % To construct this stimulus we will need two textures. The first
-        % is a center grating. The second will be a full-field grating
-        % with a transparency that only allows the grating to show through
-        % in an annulus defined in the trials struct.
-                             
-        %%%%%%%%%%%%%%%%%%% SURROUND ANNULUS GRATING %%%%%%%%%%%%%%%%%%%%%%
-        % Get the mask diameter in degrees from the trials structure
-        borderDiameter = trials(trial).Border_Diameter;
-        % Convert the mask Diameter to degrees
-        borderDiamPix = ceil((borderDiameter/degPerPix));
+        %%%%%%%%%%%%%%%%%%% CONSTRUCT SURROUND TEXTURE %%%%%%%%%%%%%%%%%%%%
+        % To draw the center and surround gratings we will need to get the
+        % temporal frequencies, the surround space freq and contrast
+        % parameters
+        surrTempFreq = trials(trial).Surround_Temporal_Frequency;
+        surrSpaceFreq = trials(trial).Surround_Spatial_Frequency;
+        surrContrast = trials(trial).Surround_Contrast;
         
+        % convert to pixel units
+        surrPxPerCycle = ceil(1/(surrSpaceFreq*degPerPix));
+        surrFreqPerPix = (surrSpaceFreq*degPerPix)*2*pi;
+        
+        % calculate amount to shift the gratings with each screen update
+        surrShiftPerFrame= ...
+            surrTempFreq * surrPxPerCycle * ifiDuration;
+    
+        %%%%%%%%%%%%%%%%%%% SURROUND ANNULUS GRATING %%%%%%%%%%%%%%%%%%%%%%
         % Get the surround size from the trials struct (in degs)
         surroundDiam = trials(trial).Surround_Diameter;
         % Convert to pixels
         surrDiamPix = ceil((surroundDiam/degPerPix));
         
-        % we construct a grating texture from parameters of the trial
-        % Get the contrast, spatial frequency of the trial
-        surrContrast = trials(trial).Surround_Contrast;
-        surrSpaceFreq = trials(trial).Surround_Spatial_Frequency;
-    
-        % convert to pixel units
-        surrPxPerCycle = ceil(1/(surrSpaceFreq*degPerPix));
-        surrFreqPerPix = (surrSpaceFreq*degPerPix)*2*pi;
-    
         % construct a 2-D grid of points to calculate our grating over
         % (note we extend by one period to account for shift of
         % grating later)
-        sx = meshgrid(-(visibleSize)/2:(visibleSize)/2 +...
-            surrPxPerCycle, -(visibleSize)/2:(visibleSize)/2, 1);
-    
+        gx = meshgrid(-(surrDiamPix)/2:(surrDiamPix)/2 +...
+            surrPxPerCycle, -(surrDiamPix)/2:(surrDiamPix)/2, 1);
+        
         % compute the grating in Luminance units
         surrGrating = grayLum +...
-            (whiteLum-grayLum)*surrContrast*cos(surrFreqPerPix*sx);
-        
-        % Set where the surround grating is transparent and non-transparent
-        % to create an annulus. Create a mesh of points
-        [ax,ay] = meshgrid(-(visibleSize)/2:(visibleSize)/2,...
-                           -(visibleSize)/2:(visibleSize)/2);
-                       
-        % make an annulus. For the surround only condition the annulus
-        % changes to a full-field grating with a gray disk the size of the
-        % surr diameter
-        if trials(trial).Surround_Condition ~= 5
-            annulus = whiteLum * (ax.^2+ay.^2 >= (borderDiamPix/2)^2 & ...
-                         ax.^2 + ay.^2 <= (surrDiamPix/2)^2);
-        else
-            annulus = whiteLum * (ax.^2+ay.^2 >= (surrDiamPix/2)^2);
-        end
-                     
-        %set the surrGrating to be non-transparent everywhere except in the
-        %annulus
+            (whiteLum-grayLum)*surrContrast*cos(surrFreqPerPix*gx);
+       
+        % set the complement region outside the surrGrating circle to be
+        % transparent
+        [sx,sy] = meshgrid(-surrDiamPix/2:surrDiamPix/2,...
+                        -surrDiamPix/2:surrDiamPix/2);
+        % set transparent everywhere
         surrGrating(:,:,2) = 0;
-        surrGrating(1:visibleSize+1, 1:visibleSize+1, 2) = annulus;
-    
+        % set nontranparent inside surround diameter
+        surrCircle = whiteLum * (sx.^2 + sy.^2 <= (surrDiamPix/2)^2);
+        
+        surrGrating(1:surrDiamPix+1, 1:surrDiamPix+1, 2) = surrCircle;
+        
         % convert grating to pixel units
         surrGrating = GammaCorrect(surrGrating);
-    
+        
         % make the grating texture and save to gratingtex cell array
         % note it is not strictly necessary to save this to a cell
         % array since we will delete at the end of the loop but I want
         % to be explicit with the texture so that I am sure to delete
         % it when it is no longer needed in memory
         surrGratingTex{trial}=Screen('MakeTexture', w,...
-                                        surrGrating,[], [], [], [], glsl);
-                                    
-                                               
+            surrGrating,[], [], [], [], glsl);
+        
         %%%%%%%%%%%%% CONSTRUCT THE CENTER GRATING %%%%%%%%%%%%%%%%%%%%%%%%
         % Now we construct the center grating to be overlayed onto the
         % border
-
+        
         % Get the contrast, spatial frequency and diameter of the trial
         centerContrast = trials(trial).Center_Contrast;
+        centerTempFreq = trials(trial).Center_Temporal_Frequency;
         centerSpaceFreq = trials(trial).Center_Spatial_Frequency;
         centerDiam = trials(trial).Center_Grating_Diameter;
+        
+        
+        centerOrientation = trials(trial).Center_Orientation;
         
         % convert to pixel units
         centerPxPerCycle = ceil(1/(centerSpaceFreq*degPerPix));
         centerFreqPerPix = (centerSpaceFreq*degPerPix)*2*pi;
         centerDiamPix = ceil(centerDiam/degPerPix);
+        
+        centerShiftPerFrame= ...
+            centerTempFreq * centerPxPerCycle * ifiDuration;   
         
         % construct a 2-D grid of points to calculate our grating over
         % (note we extend by one period to account for shift of
@@ -281,8 +273,8 @@ try
         
         % construct a circle aperature the size of the center grating
         [cx,cy] = meshgrid(-centerDiamPix/2:centerDiamPix/2,...
-                        -centerDiamPix/2:centerDiamPix/2);
-                    
+            -centerDiamPix/2:centerDiamPix/2);
+        
         circle = whiteLum * (cx.^2 + cy.^2 <= (centerDiamPix/2)^2);
         
         % Set the alpha to be 0 (non-transparent everywhere)
@@ -300,30 +292,34 @@ try
         % it when it is no longer needed in memory
         centerGratingTex{trial}=Screen('MakeTexture', w,...
             centerGrating, [], [], [], [], glsl);
-        
-        
-        %%%%%%%%%%%%%%% OBTAIN GRATING PARAMS FROM TRIALS STRUCT %%%%%%%%%%
-        % To draw the center and surround gratings we will need to get the
-        % temporal frequencies, the surround condition and the center
-        % orientation.
-        surrTempFreq = trials(trial).Surround_Temporal_Frequency;
-        centerTempFreq = trials(trial).Center_Temporal_Frequency;
-        centerOrientation = trials(trial).Center_Orientation;
-        
-        % calculate amount to shift the gratings with each screen update
-        surrShiftPerFrame= ...
-            surrTempFreq * surrPxPerCycle * ifiDuration;
-    
-        centerShiftPerFrame= ...
-            centerTempFreq * centerPxPerCycle * ifiDuration;
+
+        %%%%%%%%%%%%%%%% CONSTRUCT OUTER MASK TEXTURE %%%%%%%%%%%%%%%%%%%%%
+        % The gray mask is simply a gray circle overlayed on the surround
+        % grating 
+
+        % The mask diameter will match the centerDiameter
+        maskDiamPix = centerDiamPix;
+        % construct a grid of mask locations so we can set the alpha
+        % channel to 0 where the grating should show through the mask
+        % (i.e. the complement or area outside the circular mask)
+        [maskX, maskY] = meshgrid(-maskDiamPix/2:...
+            maskDiamPix/2);
+        % construct the rectangular mask, a square of size maskDiamPix
+        mask = ones(maskDiamPix+1, maskDiamPix+1,2)*grayPix;
+        % set the alpha channel of the complimentary region (outside of
+        % the circle to be transparent so the grating shows through
+        mask(:,:,2) = 255*(1-(maskX.^2+maskY.^2 >= (maskDiamPix/2)^2));
+        % Construct the mask
+        maskTex{trial} = Screen('MakeTexture', w, mask,...
+                                                    [], [], [], [], glsl);
+
         
         %%%%%%%%%%%%%%%%%%%%%%% PARALLEL PORT TRIGGER %%%%%%%%%%%%%%%%%%%%%
         % After constructing the stimulus texture we are ready to trigger
         % the parallel port and begin our draw to the screen. This function
         % is located in the stimGen helper functions directory.
-    
+   
         %ParPortTrigger;
-        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%% DRAW TEXTURES %%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -351,6 +347,7 @@ try
         % of when the graphics card performed a buffer swap. This time is 
         % what all of our times will be referenced to. More details at
         % http://psychtoolbox.org/FaqFlipTimestamps
+
         vbl=Screen('Flip', w);
         
         % The first time element of the stimulus is the delay from trigger
@@ -377,14 +374,14 @@ try
                 break;
             end
         end
-        
+
         %%%%%%%%%%%%%%%%%%%% DRAW CENTER-SURROUND STIMULUS %%%%%%%%%%%%%%%%
         % If the trial is a blank then we do not need worry about all the
         % drawings of the textures, otherwise we must calculate the grating
         % shifts for each draw loop for each grating (since they may have
         % different spatial and temporal frequencies) and draw them
         if ~strcmp(trials(trial).Stimulus_Type, 'Blank')
-            
+
             % get the end time of the stimulus relative to our clocked vbl
             % time
             % update the vbl timestamp and provide headroom for jitters
@@ -404,7 +401,7 @@ try
                 
                 % Set the source rectangles to excise the shifted textures
                 surrSrcRect = [0 0 ...
-                               visibleSize+1 visibleSize+1];
+                               surrDiamPix+1 surrDiamPix+1];
                 
                 centerSrcRect = [0 0 ...
                                  centerDiamPix+1 ...
@@ -471,12 +468,18 @@ try
                         
                     case 5 % surround alone
                         
-                        % Draw the annulus surround
+                        % Draw the surround
                         Screen('DrawTexture', w,...
                             surrGratingTex{trial}, surrSrcRect,...
                             [], centerOrientation,...
                             [], [], [], [], [],...
                             [0 surrXOffset 0 0]);
+                        
+                        Screen('DrawTexture', w,...
+                            maskTex{trial}, centerSrcRect,...
+                            [], centerOrientation,...
+                            [], [], [], [], [],...
+                            [0 centerXOffset 0 0]);
                         
                 end % switch stim condition end
                 
@@ -500,7 +503,7 @@ try
                     break;
                 end
             end % end of draw time period loop delay < vbl < runtime
-            
+
         else % this is a blank trial
             % get an initial time stamp
             vbl=Screen('Flip', w);
@@ -538,7 +541,6 @@ try
         
         %%%%%%%%%%%%%%%%%%%%% DRAW INTERSTIMULUS GRAY SCREEN %%%%%%%%%%%%%%
         % Between trials we want to draw a gray screen for a time of wait
-        
         % get a new timestamp for this stimulus perion
         vbl = Screen('Flip', w, vbl + (waitframes - 0.5) * ifi);
         waitTime = vbl + wait;
@@ -580,6 +582,7 @@ try
 catch 
     %this "catch" section executes in case of an error in the "try" section
     %above.  Importantly, it closes the onscreen window if its open.
+    display('Closed All Textures')
     Screen('CloseAll');
     Priority(0);
     psychrethrow(psychlasterror);
@@ -591,4 +594,3 @@ Screen('Preference', 'Verbosity',3);
 %  http://psychtoolbox.org/FaqWarningPrefs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
-
