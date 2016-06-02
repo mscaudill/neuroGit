@@ -176,7 +176,7 @@ try
         end
         
         n=0;        % This is a counter to shift our grating on each redraw
-        
+        tic
         %%%%%%%%%%%%%%%% GET STIMULUS TIMING INFORMATION %%%%%%%%%%%%%%%%%%
         % The wait, duration, and delay are stored in trials structure.
         delay = trials(trial).Timing(1);
@@ -289,7 +289,7 @@ try
         % it when it is no longer needed in memory
         centerGratingTex{trial}=Screen('MakeTexture', w,...
             centerGrating, [], [], [], [], glsl);
-        
+        toc
         %%%%%%%%%%%%%%% OBTAIN GRATING PARAMS FROM TRIALSSTRUCT %%%%%%%%%%%%%%%
     % To draw each texture, we will need the temporal frequencies and the
     % orientations of the inner and outer gratings and construct rectangles
