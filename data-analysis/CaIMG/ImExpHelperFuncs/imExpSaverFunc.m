@@ -117,7 +117,7 @@ file = fullfile(pathName,fileName);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SAVE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Depending on the size of the imExp, we will either save the file with the
-% -v7.3 switch or with -v7 (standard). This is because the -v7.3 will allow
+% -v7.3 switch or with -v6 (standard). This is because the -v7.3 will allow
 % us to save files larger than 2GB but is unfortunately much slower.
 imExpInfo = whos('imExp');
 
@@ -127,7 +127,7 @@ if ischar(fileName) && ischar(pathName)
     saveMsg = msgbox('SAVING: Please Wait...');
     
     if byteSize < 2.147e+9
-    save(file, '-struct', 'imExp', '-v7');
+    save(file, '-struct', 'imExp', '-v6');
     else % we do it the slower way
     save(file, '-struct', 'imExp', '-v7.3');
     end
