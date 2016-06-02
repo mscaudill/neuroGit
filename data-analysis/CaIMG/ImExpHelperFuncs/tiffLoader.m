@@ -1,4 +1,5 @@
-function [ stackExtrema, tiffCell] = tiffLoader(imagePath, ...
+function [ stackExtrema, tiffCell, droppedTiffCell] = tiffLoader(...
+                                                 imagePath, ...
                                                  tiffImageStack,...
                                                  chsToSave, varargin)
 % tiffLoader reads in a single image stack and converts it into a 1 x 4
@@ -18,11 +19,14 @@ function [ stackExtrema, tiffCell] = tiffLoader(imagePath, ...
 %                       user requested chs. We check these against the
 %                       actual chsRecorded to relay back to user if they
 %                       request a ch not present in the data.
+%                       : varargin, frameToDrop, saveDropFrames
 %
 % OUTPUTS:              :stackExtrema, an cell array of [min, max] pairs 
 %                        for each channel
 %                       :tiffCell, a cell array of tiff matrices, one for
 %                       each channel
+%                       : droppedTiffCell, cell array of dropped tiff
+%                       matrices, one for each channel
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %copyright (c) 2012  Matthew Caudill
 %
@@ -64,6 +68,8 @@ addRequired(p,'chsToSave',@isnumeric)
 %%%%%%%%%%%%%%%%%%%%%%% ADD VARARGS TO PARSER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 defaultFramesToDrop = [];
 addParamValue(p,'framesToDrop',defaultFramesToDrop,@isnumeric)
+defaultSaveDroppedFrames = true;
+addParamValue(p,'saveDroppedFrames',defaultSaveDroppedFrames,@islogical)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% CALL PARSE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 parse(p, imagePath, tiffImageStack, chsToSave, varargin{:})
@@ -73,6 +79,7 @@ imagePath = p.Results.imagePath;
 tiffImageStack = p.Results.tiffImageStack;
 chsToSave = p.Results.chsToSave;
 framesToDrop = p.Results.framesToDrop;
+saveDroppedFrames = p.Results.saveDroppedFrames;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%% CONSTRUCT FULLFILE PATH/NAME TO TIFF STACK %%%%%%%%%%%%%%%%
@@ -173,12 +180,20 @@ end
 % to pass back to the user
 tiffCell = cell(1,numel(chs));
 stackExtrema = cell(1,numel(chs));
+droppedTiffCell = cell(1,numel(chs));
 
 for ch = 1:numel(chsToSave)
     index = find(chsToSave(ch) == chsRecorded);
     tiffCell{chsToSave(ch)} = tiffMatrix(:,:,index:numel(chsRecorded):end);
+    
     % Now we will drop the requested frames in each of the channels
+    if saveDroppedFrames
+        droppedTiffCell{chsToSave(ch)} = ...
+            tiffCell{chsToSave(ch)}(:,:,framesToDrop);
+    end
+    
     tiffCell{chsToSave(ch)}(:,:,framesToDrop) = [];
+    
     % For displaying the images, we will pass back the lowest and highest
     % uint16 value in the tiffMatrix
     stackExtrema{chsToSave(ch)} = [min(min(min(tiffCell{chsToSave(ch)}))),...

@@ -1,6 +1,6 @@
 function varargout = ImExpMaker(varargin)
 % IMEXPMAKER M-file for ImExpMaker.fig
-% Last Modified by GUIDE v2.5 28-Aug-2015 16:01:45
+% Last Modified by GUIDE v2.5 01-Jun-2016 15:47:01
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %copyright (c) 2012  Matthew Caudill
 %
@@ -82,8 +82,12 @@ set(handles.encoderOffset,'String',num2str(state.encoderOffset));
 set(handles.encoderThreshold,'String',num2str(state.encoderThreshold));
 % set the encoder percentage
 set(handles.encoderPercentage,'String',num2str(state.encoderPercentage));
-% set the framesToRemove
-set(handles.framesToRemove,'String',num2str(state.framesToDrop));
+% set the oddFileFramesRemove
+set(handles.oddFileFramesRemove,'String',...
+    num2str(state.oddFileFramesToDrop));
+% set the evenFileFramesRemove
+set(handles.evenFileFramesRemove,'String',...
+    num2str(state.evenFileFramesToDrop));
 
 % Update handles structure
 guidata(hObject, handles);
@@ -609,13 +613,29 @@ state.chsToCorrect = str2num(get(hObject,'String'));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%% FRAMES TO REMOVE CALLBACK %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%% FRAMES TO REMOVE CALLBACKS %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function framesToRemove_Callback(hObject, eventdata, handles)
+function oddFileFramesRemove_Callback(hObject, eventdata, handles)
 global state
 % When the user selects to drop frames from image stacks we need to save
 % these frames to an array in state
-state.framesToDrop = str2num(get(hObject,'String'));
+state.oddFileFramesToDrop = str2num(get(hObject,'String'));
+
+function evenFileFramesRemove_Callback(hObject, eventdata, handles)
+global state
+% When the user selects to drop frames from image stacks we need to save
+% these frames to an array in state
+state.evenFileFramesToDrop = str2num(get(hObject,'String'));
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% SAVE DROPPED FRAMES CALLBACK %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function SaveDroppedFramesChk_Callback(hObject, eventdata, handles)
+global state
+% When the user selects the checkbox we save the dropped frames to the
+% imExp
+state.saveDroppedFrames = logical(get(hObject,'Value'));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -852,8 +872,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % --- Executes during object creation, after setting all properties.
-function framesToRemove_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to framesToRemove (see GCBO)
+function oddFileFramesRemove_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to oddFileFramesRemove (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -862,3 +882,18 @@ function framesToRemove_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+% --- Executes during object creation, after setting all properties.
+function evenFileFramesRemove_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to evenFileFramesRemove (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+

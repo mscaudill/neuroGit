@@ -29,7 +29,7 @@ function imExp = imExpCreate(state)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %TESTING INPUTS
-try
+%try
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%% LOAD DIR INFORMATION %%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -239,7 +239,8 @@ try
     %%%%%%%%%%%%%%%%%% ADD THE DROPPED FRAME NUMS TO IMEXP %%%%%%%%%%%%%%%%%%%%
     % The dropping of frames will occur in the tiffLoader function called below
     % in Main loop 2 just prior to motion correction.
-    imExp.framesDropped = state.framesToDrop;
+    imExp.framesDropped = {state.oddFileFramesToDrop,...
+                           state.evenFileFramesToDrop};
     
     
     %%%%%%%%%%% IF ENCODER THEN ADD BEHAVIOR STRUCTURE TO IMEXP %%%%%%%%%%%%%%%
@@ -290,6 +291,7 @@ try
     [tiffExtremas{1:numImageStacks}] = deal(cell(1,4));
     [tiffStacks{1:numImageStacks}] = deal(cell(1,4));
     [correctedStacks{1:numImageStacks}] = deal(cell(1,4));
+    [droppedTiffStacks{1:numImageStacks}] = deal(cell(1,4));
     
     % we set a flag here to allow the user to breakout of the motion correction
     % loop by pressing the 'cancel' button in the wait bar
@@ -311,25 +313,54 @@ try
             break
         end
         
-        % CALL TIFFLOADER TO LOAD THE IMAGE STACK & EXTREMUMS
-        % We will call tiffLoader to load the image stack for this
-        % imageFileName if and only if the imageFileName is not 'MissedTrigger'. This
-        % string indicates a missed trigger. In that case, we will bypass the
-        % loading and set the tiffExtrema and tiffStack to a [] array
-        if ~strcmp(allImageFileNames{imageFile},'missedTrigger')
-            [tiffExtremas{imageFile},tiffStacks{imageFile}] =...
-                tiffLoader(state.imagePath,...
-                allImageFileNames{imageFile}, state.chsToSave,...
-                'framesToDrop',state.framesToDrop);
-        else
-            % if we missed a trigger then we will loop through the chsToSave
-            % and assign an NaN to the tiffExtremas and tiffStacks
-            for ch = 1:numel(state.chsToSave)
-                tiffExtremas{imageFile}{state.chsToSave(ch)} = NaN;
-                tiffStacks{imageFile}{state.chsToSave(ch)} = NaN;
+        % Test whether the file number is odd or even since user may drop
+        % different number of frames depending on odd/even file numbers in
+        % gui main_func()
+        if mod(imageFile,2) ~= 0 %odd file
+            % CALL TIFFLOADER TO LOAD THE IMAGE STACK & EXTREMUMS We will
+            % call tiffLoader to load the image stack for this
+            % imageFileName if and only if the imageFileName is not
+            % 'MissedTrigger'. This string indicates a missed trigger. In
+            % that case, we will bypass the loading and set the tiffExtrema
+            % and tiffStack to a [] array
+            if ~strcmp(allImageFileNames{imageFile},'missedTrigger')
+                
+                [tiffExtremas{imageFile},tiffStacks{imageFile},...
+                    droppedTiffStacks{imageFile}] =...
+                    tiffLoader(state.imagePath,...
+                        allImageFileNames{imageFile}, state.chsToSave,...
+                        'framesToDrop',state.oddFileFramesToDrop,...
+                        'saveDroppedFrames', state.saveDroppedFrames);
+            else
+                % if we missed a trigger then we will loop through the chsToSave
+                % and assign an NaN to the tiffExtremas and tiffStacks
+                for ch = 1:numel(state.chsToSave)
+                    tiffExtremas{imageFile}{state.chsToSave(ch)} = NaN;
+                    tiffStacks{imageFile}{state.chsToSave(ch)} = NaN;
+                end
             end
-        end
+            
+        else % even file number
+            if ~strcmp(allImageFileNames{imageFile},'missedTrigger')
+                
+                [tiffExtremas{imageFile},tiffStacks{imageFile},...
+                    droppedTiffStacks{imageFile}] =...
+                    tiffLoader(state.imagePath,...
+                        allImageFileNames{imageFile}, state.chsToSave,...
+                        'framesToDrop',state.evenFileFramesToDrop,...
+                        'saveDroppedFrames', state.saveDroppedFrames);
+            else
+                % if we missed a trigger then we will loop through the chsToSave
+                % and assign an NaN to the tiffExtremas and tiffStacks
+                for ch = 1:numel(state.chsToSave)
+                    tiffExtremas{imageFile}{state.chsToSave(ch)} = NaN;
+                    tiffStacks{imageFile}{state.chsToSave(ch)} = NaN;
+                end
+            end
+            
+        end % modulus test
         
+  
         % CALL MOTION CORRECTION TURBOREG ON TIFFSTACK. 2 CONDITIONS TO BE
         % MET. 1. USER MUST SELECT CHS TO CORRECT, 2. TRIGGER MUST NOT HAVE
         % BEEN MISSED IN ORDER THAT WE CALL TURBOREG TO CORRECT
@@ -372,10 +403,17 @@ try
     % Reshape the corrected stacks cell to be num stimulus files x numTriggers
     correctedStacks = reshape(correctedStacks, [],numel(state.stimFileNames))';
     
+    % reshape the dropped stacks cell to be num stimulus files x
+    % numTriggers
+    droppedStacks = reshape(droppedTiffStacks, [],numel(state.stimFileNames))';
+    
     % Convert corrected stacks to a structure with fields chs1 to chs4 (
     % scanimage records at most 4 chs as of vers 3.6)
     correctedStacks = cellfun(@(y) cell2struct(y, ...
         {'Ch1' 'Ch2' 'Ch3' 'Ch4'}, 2), correctedStacks);
+    
+    droppedStacks = cellfun(@(y) cell2struct(y, ...
+        {'Ch1' 'Ch2' 'Ch3' 'Ch4'}, 2), droppedStacks);
     
     % Reshape the corrected stacks cell to be num stimulus files x numTriggers
     extremas = reshape(tiffExtremas,[], numel(state.stimFileNames))';
@@ -390,6 +428,7 @@ try
     % the experiment structure
     imExp.correctedStacks = correctedStacks;
     imExp.stackExtremas = extremas;
+    imExp.droppedStacks = droppedStacks;
     
     % If the wait bar is still around, go ahead and delete it
     if breakOut ~= 1
@@ -406,10 +445,10 @@ try
     F = findall(0,'type','figure','tag','TMWWaitbar');
     delete(F);
 
-catch
+%catch
     F = findall(0,'type','figure','tag','TMWWaitbar'); 
     delete(F);
-end
+%end
 
 end
 
