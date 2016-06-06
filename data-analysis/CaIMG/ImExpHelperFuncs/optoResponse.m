@@ -1,5 +1,5 @@
-function signalMap = optoResponse(droppedStacks, chNumber, currentRoi,...
-                                  baselineFrames, neuropilRatio);
+function optoResponse(droppedStacks, chNumber, currentRoi,...
+                                  baselineFrames, neuropilRatio)
 %optoResponse computes the response of a cell to laser or led stimulation
 %alone.
 %
@@ -65,6 +65,94 @@ meanStacks = cellfun(@(x) mean(x,4), groupedImages, 'UniformOut',0);
 
 assignin('base','meanStacks',meanStacks)
 
-signalMap = 1;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% COMPUTE THE ROI LOGICAL MASK %%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% We are going to create a logical image for the roi that matches the
+% width and height of each of our collected data frames so first get the
+% width and height of images in the imExp
+imageDim = size(droppedStacks(1,1).(['Ch',num2str(chNumber)]));
+
+roi = currentRoi;
+
+% create a logial image mask for the input current roi
+roiImage = logical(poly2mask(roi(:,1),roi(:,2),...
+                     imageDim(1), imageDim(2)));
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% COMPUTE NEUROPIL ANNULAR REGION %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% We now will create a neuropil region for the roi. To do this we will get
+% the center and max radius of each roi and construct an annulus from two
+% circles. The inner circle will match the max radius of the roi and the
+% outer circle will be 20 um greater in diameter.
+
+% determine the center for the roi by taking the mean of all the xs and ys
+center = [mean(roi(:,1)), mean(roi(:,2))];
+% the radius will be the maximum difference of the roi points from the
+% center
+radius = max(sqrt((roi(:,1)-center(1)).^2 + (roi(:,2)-center(2)).^2));
+
+% now create inner and outer circles to create an annular region
+radians = linspace(0, 2*pi, 100);
+innerCircle = [center(1)+radius*cos(radians); ...
+               center(2)+radius*sin(radians)]';
+
+radiusGrowthPercent = 0.2;
+
+outerCircle = [center(1)+(1+radiusGrowthPercent)*radius*cos(radians);...
+               center(2)+(1+radiusGrowthPercent)*radius*sin(radians)]';
+
+% create a logical image of the neuropil annular region
+neuropilLogicalImage = ...
+    logical(poly2mask(outerCircle(:,1), outerCircle(:,2), imageDim(1),...
+    imageDim(2)) - poly2mask(innerCircle(:,1), innerCircle(:,2),...
+    imageDim(1), imageDim(2)));
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%% MULTIPLY DATA STACKS WITH LOGICAL STACKS %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Get the image class of the dropped stacks
+imageClass = class(meanStacks{1});
+
+% recast the roi and neuropil logical images to match the imageClass
+roiImage = cast(roiImage,imageClass);
+neuropilImage = cast(neuropilLogicalImage,imageClass);
+           
+% We will now convert the combined images into stacks for matrix
+% multiplication with each stack in the imagesMap
+roiStack = repmat(roiImage,[1,1, imageDim(3)]);
+neuropilStack = repmat(neuropilImage, [1,1,imageDim(3)]);
+
+for stack = 1:numel(meanStacks)
+    roiImageStacks{stack} = roiStack.*meanStacks{stack};
+    neuropilImageStacks{stack} = neuropilStack.*meanStacks{stack};
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% COMPUTE FLUORESCENCE VALUES %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+fluorVals = cellfun(@(x) squeeze(mean(mean(x))), roiImageStacks, 'UniformOut',0);
+neuropilVals = cellfun(@(x) squeeze(mean(mean(x))), neuropilImageStacks,...
+                        'UniformOut',0);
+                    
+corrFluorVals = cellfun(@(x,y) x-neuropilRatio*y,...
+                        fluorVals,neuropilVals,'UniformOut',0);
+
+assignin('base', 'corrFluorVals',corrFluorVals)
+
+% call deltaFbyF to calculate percentage changes
+for arr = 1:numel(fluorVals)
+    dFbyF{arr} = deltaFbyF(fluorVals{arr}, corrFluorVals{arr},[],[],...
+                              baselineFrames);
+end
+                      
+dFbyFmatrix = cell2mat(dFbyF);
+plot(dFbyFmatrix)
+
 end
 

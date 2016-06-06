@@ -52,7 +52,11 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%% CALCULATE UNCORRECTED PRESTIMULUS SIGNAL %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-uncorrPreStimMean = mean(fluorVals(1:floor((stimTiming(1))*frameRate)));
+if isempty(baselineFrames)
+    uncorrPreStimMean= mean(fluorVals(1:floor((stimTiming(1))*frameRate)));
+else
+    uncorrPreStimMean= mean(fluorVals(baselineFrames));
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
