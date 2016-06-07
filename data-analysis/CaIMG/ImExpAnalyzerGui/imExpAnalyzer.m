@@ -22,7 +22,7 @@ function varargout = imExpAnalyzer(varargin)
 % selected regions of interest. It saves the ROIs and the fluorescent
 % signals to the imExpStructure.
 %
-% Last Modified by GUIDE v2.5 10-May-2016 15:21:17
+% Last Modified by GUIDE v2.5 06-Jun-2016 15:41:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1719,6 +1719,24 @@ if ~any(ismember({'odd','even'},userReqString))
 else
     state.Led{2} = get(handles.ledTrialsBox, 'String');
 end
+
+function plotLedResponse_Callback(hObject, eventdata, handles)
+% When the user presses the plotLedResponse button we call the function
+% optoResponse to plot the laser/led trials response only if dropped frames
+% are present in the imExp
+global state
+global imExp
+if isfield(imExp,'droppedStacks')
+    % use only the first two frames to compute (note this needs
+    % generalization at some point
+    optoResponse(imExp.droppedStacks, state.chToDisplay,...
+                 state.currentRoi, [1,2], state.neuropilRatio)
+else
+    hmsg = msgbox(...
+        'This experiment does not contain the dropped Laser/Led stacks');
+    wait(2)
+    close(hmsg)
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1786,7 +1804,8 @@ switch plotterType
         
     case 'fluorPlotter'
         fluorPlotter2(signalMaps, state.stimVariable, imExp.stimulus,...
-            imExp.fileInfo, framesDropped, hfig);
+            imExp.fileInfo, framesDropped, hfig,roiSet, roiIndex,...
+            state.imExpName);
         close(hmsg)
         
     case 'csPlotter'
@@ -2170,3 +2189,5 @@ function ledBaselineFrames_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+

@@ -35,7 +35,9 @@ function optoResponse(droppedStacks, chNumber, currentRoi,...
 % Now obtain the images from the droppedStacks structure. We again
 % rotate the structure first to keep the triggers ordered
 imagesStruct = droppedStacks';
-structSize = size(imagesStruct);
+numTrials = size(imagesStruct,2);
+numTriggers = size(imagesStruct,1);
+
 % Use the user inputted chNumber to extract all the images for that ch to a
 % cell array
 imagesCell = {imagesStruct(:,:).(['Ch',num2str(chNumber)])};
@@ -50,13 +52,13 @@ imagesCell = imagesCell(~cellfun(@isempty, imagesCell));
 %%%%%%%%%%%%%%%%%%%%%%% COMPUTE AVERAGE STACKS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % group the images by trials
-for trial = 1:structSize(1)/2
-    % get the first 10 image stacks
-    groupedImages{trial} = {imagesCell{1:10}};
-    % pop off the first 10 after extracting group
-    imagesCell(1:10)=[];
+for trial = 1:numTrials
+    % get the number of laser only triggers numTriggers/2
+    groupedImages{trial} = {imagesCell{1:numTriggers/2}};
+    % pop off the first numTriggers/2 after extracting group
+    imagesCell(1:numTriggers/2)=[];
 end
-
+assignin('base','groupedImages',groupedImages)
 % concatenate trials along 4th dim
 groupedImages = cellfun(@(x) cat(4,x{:}), groupedImages, 'UniformOut',0);
 
@@ -150,7 +152,8 @@ for arr = 1:numel(fluorVals)
     dFbyF{arr} = deltaFbyF(fluorVals{arr}, corrFluorVals{arr},[],[],...
                               baselineFrames);
 end
-                      
+numFigs = length(findall(0,'type','figure'));
+figure(numFigs+1)
 dFbyFmatrix = cell2mat(dFbyF);
 plot(dFbyFmatrix)
 
