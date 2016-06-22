@@ -33,7 +33,7 @@ state.allChs = [1,2];
 state.scaleFactor = 1;
 % user can select their preferred method of drawing rois, The first one
 % should be the preferred one
-state.drawMethod = 'Free Hand';
+state.drawMethod = 'Ellipse';
 
 % user can specify an initial cell type of interest for this exp
 state.initCellType = 'pyr';

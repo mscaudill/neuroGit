@@ -606,8 +606,7 @@ for roiSet = 1:numel(state.roiSets)
     if ~isempty(state.roiSets{roiSet})
         % if the set is not empty, then we will draw each of the roi polygons
         for roi = 1:numel(state.roiSets{roiSet})
-            roiPlotter(state.roiSets{roiSet}{roi}, 'b', imageAxes,...
-                state.drawMethod)
+            roiPlotter(state.roiSets{roiSet}{roi}, 'b', imageAxes)
         end
     end
 end
@@ -780,8 +779,7 @@ for roiSet = 1:numel(state.roiSets)
     if ~isempty(state.roiSets{roiSet})
         % if the set is not empty, then we will draw each of the roi polygons
         for roi = 1:numel(state.roiSets{roiSet})
-            roiPlotter(state.roiSets{roiSet}{roi}, 'b', imageAxes, ...
-                state.drawMethod)
+            roiPlotter(state.roiSets{roiSet}{roi}, 'b', imageAxes)
         end
     end
 end
@@ -915,8 +913,7 @@ for roiSet = 1:numel(state.roiSets)
     if ~isempty(state.roiSets{roiSet})
         % if the set is not empty, then we will draw each of the roi polygons
         for roi = 1:numel(state.roiSets{roiSet})
-            roiPlotter(state.roiSets{roiSet}{roi}, 'b', imageAxes,...
-                state.drawMethod)
+            roiPlotter(state.roiSets{roiSet}{roi}, 'b', imageAxes)
         end
     end
 end
@@ -1293,8 +1290,7 @@ for roiSet = 1:numel(state.roiSets)
 if ~isempty(state.roiSets{roiSet})
     % if the set is not empty, then we will draw each of the roi polygons
     for roi = 1:numel(state.roiSets{roiSet})
-        roiPlotter(state.roiSets{roiSet}{roi}, 'b', imageAxes,...
-            state.drawMethod)
+        roiPlotter(state.roiSets{roiSet}{roi}, 'b', imageAxes)
     end
 end
 end
@@ -1382,13 +1378,8 @@ hold(axes, 'on');
 % This is a clumsy but effective way to quickly alternate colors
 colors = {'r','y','r','y'};
 for iter = 1:4
-    if strcmp(state.drawMethod,'Free Hand')
     h1 = plot(state.currentRoi(:,1),state.currentRoi(:,2), colors{iter},...
-    'LineWidth', 3, 'Parent', axes);
-    elseif strcmp(state.drawMethod,'Ellipse')
-    h1 = rectangle('Position',state.currentRoi,'Curvature',[1,1],...
-        'EdgeColor', colors{iter}, 'LineWidth', 3, 'Parent', axes);   
-    end
+    'LineWidth', 3, 'Parent', axes);  
 pause(0.1)
 delete(h1)
 end

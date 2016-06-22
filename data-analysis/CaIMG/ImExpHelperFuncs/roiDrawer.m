@@ -25,14 +25,20 @@ function [ roi ] = roiDrawer(drawMethod,axes)
 % freehand is available)
 switch drawMethod
     case 'Free Hand'
-       roiHandle = imfreehand(axes);
+        roiHandle = imfreehand(axes);
+       
+        % We now will get the position of the roi
+        roi = getPosition(roiHandle);
+
     case 'Ellipse'
         roiHandle = imellipse(axes);
+        
+        % imEllipse get vertices returns the perimeter nx2 array
+        roi = getVertices(roiHandle);
 end
-% We now will get the position of the roi
-roi = getPosition(roiHandle);
+
 % we will now delete the object since we don't need it anymore
 delete(roiHandle)
-roiPlotter(roi, 'y', axes, drawMethod);
+roiPlotter(roi, 'y', axes);
 end
 
