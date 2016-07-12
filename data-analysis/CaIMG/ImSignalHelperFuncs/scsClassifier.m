@@ -2,7 +2,7 @@ function [maxAreaAngle, maxSurroundAngle, nSigma, classification, threshold] = .
                         scsClassifier(signalMaps, cellTypeOfInterest,...
                                       roiSetNum, roiNum, stimulus,...
                                       fileInfo, minNSigma, mThreshold,...
-                                      framesDropped)
+                                      framesDropped, varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %copyright (c) 2013  Matthew Caudill
 %
@@ -52,6 +52,11 @@ function [maxAreaAngle, maxSurroundAngle, nSigma, classification, threshold] = .
 %                                               signals, to decide whether 
 %                                               cell responded to a given 
 %                                               stimulus condition 
+%                                   varargin:   maxAreaAngle, if known the
+%                                               user can pass the angle to
+%                                               classify directly, if not
+%                                               passed we will
+%                                               automatically compute below
 %
 % OUTPUTS:                      maxAreaAngle:   angle for which area below 
 %                                               center only is greatest
@@ -66,25 +71,37 @@ function [maxAreaAngle, maxSurroundAngle, nSigma, classification, threshold] = .
 %                                               stimulus condition 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% calculate the stimulation frames
-startFrame = floor(stimulus(1,1).Timing(1)*fileInfo(1,1).imageFrameRate-...
-                   numel(framesDropped > 0));
-endFrame = startFrame + floor(stimulus(1,1).Timing(2)*...
-                              fileInfo(1,1).imageFrameRate);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% PARSE INPUT ARGS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The input parser will allow us to designate default values for the input
+% arguments in a keyword,value manner. It provides flexibility to the user
+% in customizing this function to suit their purposes
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%% CALL AREA CALCULATOR AND LOCATE MAX CENTER AREA INDEX %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% construct a parser object (builtin matlab class)
+p = inputParser;
+% add required variables
+addRequired(p,'signalMaps')
+addRequired(p,'cellTypeOfInterest')
+addRequired(p,'roiSetNum')
+addRequired(p, 'roiNum')
+addRequired(p, 'stimulus')
+addRequired(p,'fileInfo')
+addRequired(p, 'minNSigma')
+addRequired(p, 'mThreshold')
+addRequired(p,'framesDropped')
+
+% Determine Default maxArea angle to add to the parser
 % Call the area calculator to return the areas for all angles and all
 % conditions of the surround
 [meanAreas, ~, roiKeys] = areaCalculator(signalMaps, roiSetNum, roiNum,...
-                                         stimulus, fileInfo,framesDropped);
+    stimulus, fileInfo,framesDropped);
 % Depending on the cellType we will calculate the max angle differently
 % (although later we may unify be always requiring max angle at
 % max(sum(co,c1,c2,I).
 switch cellTypeOfInterest
     case 'pyr'
-        % use cellfun to sum the c0 c1 c2 meanAreas and locate the maximum                                     
+        % use cellfun to sum the c0 c1 c2 meanAreas and locate the maximum
         [~, maxIndex] = max(cellfun(@(x) sum(x(1:3)), meanAreas));
     case 'som'
         % use cellfun to sum the co and I meanAreas to loc max
@@ -93,6 +110,17 @@ end
 % convert the maxIndex into an angle using the roiKeys returned from the
 % area calculator
 maxAreaAngle = roiKeys{maxIndex};
+
+% Add optional parameter values to the parser
+defaultMaxAreaAngle = maxAreaAngle;
+addParamValue(p, 'maxAreaAngle', defaultMaxAreaAngle)
+
+% call the input parser method parse
+parse(p, signalMaps, cellTypeOfInterest, roiSetNum, roiNum, stimulus,...
+         fileInfo, minNSigma, mThreshold, framesDropped , varargin{:})
+
+% finally retrieve the variable arguments from the parsed inputs
+maxAreaAngle = p.Results.maxAreaAngle;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -153,6 +181,13 @@ meanSurrounds = cellfun(@(f) mean(f,2), surroundMats, 'uniformOut',0);
 
 % now we need to compute the areas below each meanSurround trace during
 % visual stimulation
+
+% calculate the stimulation frames
+startFrame = floor(stimulus(1,1).Timing(1)*fileInfo(1,1).imageFrameRate-...
+                   numel(framesDropped > 0));
+endFrame = startFrame + floor(stimulus(1,1).Timing(2)*...
+                              fileInfo(1,1).imageFrameRate);
+
 meanAreaSurrounds = cellfun(@(x) trapz(x(startFrame:endFrame)),...
                     meanSurrounds);
                 

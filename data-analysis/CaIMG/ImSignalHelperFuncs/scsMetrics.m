@@ -60,7 +60,7 @@ function [surroundOriIndex, surroundGains, suppressionIndex ] =...
 % Call the area calculator to return the areas for all angles and all
 % conditions of the surround
 [meanAreas, ~, roiKeys] = areaCalculator(signalMaps, roiSetNum, roiNum,...
-                                         stimulus, fileInfo, framesDropped);
+                                        stimulus, fileInfo, framesDropped);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
