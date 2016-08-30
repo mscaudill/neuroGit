@@ -401,7 +401,7 @@ if ~isempty(strfind(state.imExpName,'ROI'))
         state.currentRoi = state.roiSets{roiSetIndex}{1};
     
         % Now we call roiPlotter to plot the current roi to  image stack
-        roiPlotter(state.currentRoi, 'y', imageAxes, state.drawMethod);
+        roiPlotter(state.currentRoi, 'y', imageAxes);
     else
         state.currentRoi = [];
     end
@@ -1758,7 +1758,7 @@ function meanDFbyFButton_Callback(hObject, eventdata, handles)
 
 global imExp
 global state
-assignin('base','analyzerState',state)
+%assignin('base','analyzerState',state)
 % When the user selects to plot the mean df/f, we need to perform the
 % following
 % call the signalMapper which will create the proper map object for the
@@ -1800,8 +1800,9 @@ switch plotterType
         close(hmsg)
         
     case 'csPlotter'
-        csPlotter(signalMaps,'all',imExp.stimulus, imExp.fileInfo,...
-                  framesDropped, hfig, roiSet, roiIndex, state.imExpName)
+        csPlotter(signalMaps,state.cellTypes{roiSet}{roiIndex},'all',...
+                  imExp.stimulus, imExp.fileInfo, framesDropped, hfig,...
+                  roiSet, roiIndex, state.imExpName)
         
         close(hmsg)
         

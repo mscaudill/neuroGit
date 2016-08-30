@@ -261,7 +261,8 @@ end
 % those back out of the signal mapper. For imExps created prior to frame
 % dropping we simply pass out an empty list. This maintains compatibility.
 if isfield(imExp, 'framesDropped')
-    framesDropped = imExp.framesDropped;
+    %framesDropped = imExp.framesDropped;
+    framesDropped = []; % 8-30-2016 FIXME I am not dropping frames corr
 else
     framesDropped = [];
 end

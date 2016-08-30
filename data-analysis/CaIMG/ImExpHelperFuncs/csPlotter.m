@@ -1,4 +1,4 @@
-function csPlotter(csSignalMaps, angles, stimulus, fileInfo,...
+function csPlotter(csSignalMaps, cellType, angles, stimulus, fileInfo,...
                    framesDropped, hfig, roiSet, roiIndex, imExpName)
 % CSPlotter plots the center-surround signals (nonLed and Led (if present)
 % in the csSignalMaps cell array passed from SignalMaps. Based on the user 
@@ -189,6 +189,14 @@ if ~isempty(csSignalMaps{2}{1})
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%% COMPUTE MAX AREA ANGLE AND NSIGMA %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% We want to plot a line for the Nsigma.
+[maxAreaAngle, ~, nSigma, ~,~, priorStdMean]=...
+scsClassifier(csSignalMaps, cellType, 1, 1, stimulus,...
+              fileInfo, 40, 2.5, framesDropped);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PLOTTING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We now will generate a figure with subplots in it that match the number
@@ -212,6 +220,7 @@ end
 % We will loop through the angles and the conditions and make a subplot of
 % the indidual trials, and mean at each condition for each map
 for angleIndex = 1:numel(angles)
+           
     for cond = 1:numConds
         % create a cell array of condition strings for plotting to title of
         % each plot below
@@ -267,6 +276,33 @@ for angleIndex = 1:numel(angles)
             axis('tight')
             ylim([minVal,maxVal])
         end
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%% PLOT NSIGMA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        if angles(angleIndex) == maxAreaAngle
+            hold on
+            maxSigma = max(nSigma);
+            
+            % Plot the maxSigma
+            plot(time, maxSigma*priorStdMean*ones(1,numel(time)),...
+                'color', [255, 80, 80]/255)
+            hold on
+            text(min(time)+0.2,maxSigma*priorStdMean+0.1,...
+                 num2str(maxSigma,3))
+            
+            hold on
+            % Plot the maxSigma-10
+            plot(time, (maxSigma-10)*priorStdMean*ones(1,numel(time)),...
+                'color', [255, 120, 120]/255)
+            hold on
+
+            % Plot the maxSigma-20
+            plot(time, (maxSigma-20)*priorStdMean*ones(1,numel(time)),...
+                'color', [255, 120, 120]/255)
+            
+            hold off
+        end
             
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%%%%%%%%%%%%%%%% PLOT THE STIM EPOCHS %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -290,7 +326,7 @@ for angleIndex = 1:numel(angles)
             ha = area(stimTimesVec, ylimVector, yLimits(1));
             
             % set the area properties
-            set(ha, 'FaceColor', [245 245 245]/255)
+            set(ha, 'FaceColor', [220 220 220]/255)
             set(ha, 'LineStyle', 'none')
             
             set(gca, 'box','off')
