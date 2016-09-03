@@ -16,6 +16,7 @@ state.imagingDepth = [];
 state.saveEncoder = [];
 state.chsToCorrect = [2];
 state.scaleFactor = 1;
+state.saveDroppedFrames = false;
 state.oddFileFramesToDrop = [];
 state.evenFileFramesToDrop = [];
 
