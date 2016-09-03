@@ -1,7 +1,7 @@
 function [imagesMap, signalMaps, runningInfo] =...
                             fluorMap(imExp, stimVariable,roiSets,...
                                      currentRoi, chNumber, runState,...
-                                     neuropilMultiplier) 
+                                     neuropilMultiplier,baselineFrames) 
 % fluorMap constructs a map object called imagesMap which is  a map ( see
 % containers class Matlab builtin) of all the images in the imExp keyed on
 % the stimVariable. Secondly, fluorMap constructs a cell array of map
@@ -428,7 +428,7 @@ if isempty(currentRoi)
             % fluorescence during visual stimulation
             dFByF{roi}{imageStack} = deltaFbyF(fluorVals,corrFluorVals,...
                 imExp.stimulus(1,1).Timing,...
-                imExp.fileInfo(1,1).imageFrameRate);
+                imExp.fileInfo(1,1).imageFrameRate,baselineFrames);
         end
     end
 else %%%%%%%%%%%%%%%%%%%%%%%%%%% SINGLE ROI INPUT %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -474,7 +474,7 @@ else %%%%%%%%%%%%%%%%%%%%%%%%%%% SINGLE ROI INPUT %%%%%%%%%%%%%%%%%%%%%%%%%
             % fluorescence during visual stimulation
             dFByF{1}{imageStack} = deltaFbyF(fluorVals, corrFluorVals,...
                 imExp.stimulus(1,1).Timing,...
-                imExp.fileInfo(1,1).imageFrameRate);
+                imExp.fileInfo(1,1).imageFrameRate,baselineFrames);
     end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

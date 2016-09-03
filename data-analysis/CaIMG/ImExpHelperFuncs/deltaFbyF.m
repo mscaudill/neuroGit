@@ -43,7 +43,7 @@ function signal = deltaFbyF(fluorVals, corrFluorVals, stimTiming,...
 % If the user left blank the baseline frames to use then we take frame one
 % up to the first stimulus frame.
 if isempty(baselineFrames)
-    preStimMean = mean(corrFluorVals(1:floor(stimTiming(1)*frameRate)));
+    preStimMean = mean(corrFluorVals(1:ceil(stimTiming(1)*frameRate)));
 else
     preStimMean = mean(corrFluorVals(baselineFrames));
 end
@@ -53,7 +53,7 @@ end
 %%%%%%%%%%%%%% CALCULATE UNCORRECTED PRESTIMULUS SIGNAL %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if isempty(baselineFrames)
-    uncorrPreStimMean= mean(fluorVals(1:floor((stimTiming(1))*frameRate)));
+    uncorrPreStimMean= mean(fluorVals(1:ceil((stimTiming(1))*frameRate)));
 else
     uncorrPreStimMean= mean(fluorVals(baselineFrames));
 end

@@ -99,9 +99,13 @@ angleIndex = (cell2mat(roiKeys)==angle);
 % obtain the meanAreas for this index
 meanAngleAreas = meanAreas{angleIndex};
 
-surroundOriIndex = (mean(meanAngleAreas(2:3))-meanAngleAreas(4))/...
-                    (mean(meanAngleAreas(2:3))+meanAngleAreas(4));
-
+%surroundOriIndex = (mean(meanAngleAreas(2:3))-meanAngleAreas(4))/...
+                    %(mean(meanAngleAreas(2:3))+meanAngleAreas(4));
+                    
+% 09012016 Given that there may be surround direction preferences i will
+% use the following
+surroundOriIndex = (max(meanAngleAreas(2:3))-meanAngleAreas(4))/...
+                    (max(meanAngleAreas(2:3))+meanAngleAreas(4));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

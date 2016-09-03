@@ -251,7 +251,7 @@ centers = cellfun(@(g) [mean(g(:,1)), mean(g(:,2))], allRois,...
 % compute as r = max(sqrt((x-x0)^2+(y-y0)^2)) where x0,y0 is the center of roi
 roiRadii = cellfun(@(roi,c) max(sqrt((roi(:,1)-c(1)).^2 +...
                     (roi(:,2)-c(2)).^2)), allRois, centers,'UniformOut',0);
-            
+%assignin('base','roiRadii', roiRadii)           
 % now create inner and outer circles to create an annular region
 radians = linspace(0, 2*pi, 100);
 
@@ -291,7 +291,6 @@ for region = 1:numel(neuropilLogicalImages)
     % convert back to logical type
     neuropilLogicalImages{region} = logical(neuropilLogicalImages{region});
 end
-%assignin('base','npLogicalImages', neuropilLogicalImages)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -313,6 +312,7 @@ end
 % all the annular neuropil regions with other cells excluded.
 comboNeuropilImage = logical(sum(cat(3,neuropilLogicalImages{:}),3));
 
+assignin('base','comboNeuropilImage', comboNeuropilImage)
 % We are now going to convert these combined images into 3-D stacks to
 % multiply with each of the image stacks collected for each trigger, but
 % first we need to convert them to the same class as the image stacks.

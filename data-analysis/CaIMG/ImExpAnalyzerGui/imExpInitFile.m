@@ -63,3 +63,4 @@ state.notes = 'Notes';
 ImExpDirInformation;
 state.imExpRoiFileLoc = dirInfo.imExpRoiFileLoc;
 state.imExpRawFileLoc = dirInfo.imExpRawFileLoc;
+state.imExpFileLoc = dirInfo.imExpFileLoc;

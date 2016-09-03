@@ -193,8 +193,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We want to plot a line for the Nsigma.
 [maxAreaAngle, ~, nSigma, ~,~, priorStdMean]=...
-scsClassifier(csSignalMaps, cellType, 1, 1, stimulus,...
-              fileInfo, 40, 2.5, framesDropped);
+scsClassifier(csSignalMaps(1), cellType, 1, 1, stimulus,...
+              fileInfo, 17, 2, []);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PLOTTING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

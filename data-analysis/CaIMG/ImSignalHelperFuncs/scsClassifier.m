@@ -184,9 +184,9 @@ meanSurrounds = cellfun(@(f) mean(f,2), surroundMats, 'uniformOut',0);
 % visual stimulation
 
 % calculate the stimulation frames
-startFrame = floor(stimulus(1,1).Timing(1)*fileInfo(1,1).imageFrameRate-...
+startFrame = ceil(stimulus(1,1).Timing(1)*fileInfo(1,1).imageFrameRate-...
                    numel(framesDropped > 0));
-endFrame = startFrame + floor(stimulus(1,1).Timing(2)*...
+endFrame = startFrame + ceil(stimulus(1,1).Timing(2)*...
                               fileInfo(1,1).imageFrameRate);
 
 meanAreaSurrounds = cellfun(@(x) trapz(x(startFrame:endFrame)),...
@@ -210,9 +210,15 @@ condMeans{5} = meanSurrounds{maxSurroundIndex};
 % during stimulation in units of std deviations.
 
 % First calculate the mean of the mean signals across the conditions
-condMeanSignal = mean(cell2mat(condMeans),2);
+%condMeanSignal = mean(cell2mat(condMeans),2);
+%priorStdMean = std(condMeanSignal(1:startFrame));
 
-priorStdMean = std(condMeanSignal(1:startFrame));
+startSignals = cellfun(@(x) x(1:startFrame), condMeans, 'UniformOut',0);
+
+priorStdMean = std(reshape(cell2mat(startSignals),1,[]));
+assignin('base','condMeans', condMeans)
+%assignin('base','startSignals', startSignals)
+%assignin('base','priorStdMean', priorStdMean)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -230,13 +236,15 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We first determine a threshold based on the maximum of nSigmna
 threshold = max(nSigma)/mThreshold;
+
 % Now ensure that we at least meet the minimum user defined acceptable
 % signal size
 if max(nSigma) < minNSigma
     classification = logical([0,0,0,0,0]);
 else
-classification = logical(nSigma > threshold);
+    classification = logical(nSigma > threshold);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 end
 

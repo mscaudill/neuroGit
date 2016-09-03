@@ -1,5 +1,5 @@
 function fluorPlotter2(fluorMap, stimVariable,stimulus, fileInfo,...
-                       framesDropped, hfig)
+                       framesDropped, hfig,roiSet, roiIndex, imExpName)
 % fluorPlotter plots a time series of of fluroescence signals.
 % INPUTS                    : fluorMap a map object of percentage
 %                             fluorescent signals
@@ -173,6 +173,16 @@ end
 % means 2) plot the led signals and the means. 3) plot the stimulus epochs
 % as gray backgrounds
 signalAxes = axes;
+
+if ~isempty(roiSet) && ~isempty(roiIndex)
+    Supertitle = [strrep(imExpName,'_','-'), ' ROI:', num2str(roiSet),...
+                '-',num2str(roiIndex)];
+            
+    annotation('textbox', [0 0.9 1 0.1], ...
+        'String', Supertitle, ...
+        'EdgeColor', 'none', ...
+        'HorizontalAlignment', 'center', 'fontWeight', 'Bold')
+end
 %%%%%%%%%%%%%%%%%%%%%%%%% PLOT THE NON-LED SIGS %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % We will loop through the fullNonLedSignalMatrices. Note these matrices
 % are already ordered by the keys of the fluorMap.

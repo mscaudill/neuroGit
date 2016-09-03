@@ -41,12 +41,12 @@ addRequired(p,'cellTypeOfInterest');
 % If the user has not supplied inputs we will use a minimumNSigma for
 % classification of 40 stds of the noise and a threshold divisor of 2.5.
 % Please see scsClassifier for more details.
-defaultMinNSigma = 40;
+defaultMinNSigma = 17; %40;
 addParamValue(p, 'minNSigma',defaultMinNSigma) 
-defaultMThreshold = 2.5;
+defaultMThreshold = 2; %2.5;
 addParamValue(p, 'mThreshold', defaultMThreshold)
 
-defaultFramesDropped = 0;
+defaultFramesDropped = [];
 addParamValue(p, 'framesDropped', defaultFramesDropped)
 
 % call the input parser method parse
@@ -57,7 +57,8 @@ minNSigma = p.Results.minNSigma;
 mThreshold = p.Results.mThreshold;
 framesDropped = p.Results.framesDropped;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+disp(minNSigma)
+disp(mThreshold)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%% LOAD DIR INFORMATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -134,7 +135,9 @@ for ledCond = 1:2
                     [maxAreaAngle{roiSet}{roiNum}, ...
                      maxSurroundAngle{roiSet}{roiNum},...
                      nSigma{roiSet}{roiNum}, ...
-                     classification{roiSet}{roiNum} ] = ...
+                     classification{roiSet}{roiNum},...
+                     threshold{roiSet}{roiNum} ,...
+                     priorStdMean{roiSet}{roiNum} ] = ...
                                     scsClassifier(signalMaps{ledCond},...
                                                   cellTypeOfInterest,...
                                                   roiSet,...
@@ -142,6 +145,12 @@ for ledCond = 1:2
                                                   fileInfo,...
                                                   minNSigma, mThreshold,...
                                                   framesDropped);
+                                              
+                     disp(['Cell ', num2str(roiSet),',',num2str(roiNum),...
+                           '  (MAX SIGMA, , THRESHOLD)= ',...
+                           num2str(max(nSigma{roiSet}{roiNum})), ' : ',...
+                           num2str(threshold{roiSet}{roiNum})])
+                     disp(nSigma{roiSet}{roiNum})
                                               
                     %%%%%%%%%%%%%%% CALL SCSMETRICS %%%%%%%%%%%%%%%%%%%%%%%
                     % Compute the surround metrics

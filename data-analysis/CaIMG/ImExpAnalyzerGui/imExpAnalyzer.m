@@ -211,7 +211,7 @@ global imExp
 
 %%%%%%%%%%%%%%%%%%%%%%%% OBTAIN IMEXP NAME AND LOCATION %%%%%%%%%%%%%%%%%%%
 % Call uigetfile (built-in) to select the imExp and get path to file
-[imExpName, PathName] = uigetfile(state.imExpRawFileLoc,...
+[imExpName, PathName] = uigetfile(state.imExpFileLoc,...
                                             'MultiSelect','off');
 % Update state imExp name
 state.imExpName = imExpName;
@@ -1784,7 +1784,8 @@ roiSet = get(handles.roiSetListBox, 'Value');
                                     state.neuropilRatio,...
                                     state.noLedBaseline,...
                                     state.ledBaseline);
-    
+
+assignin('base','sm', signalMaps)
 % get the number of open figures
 numFigs=length(findall(0,'type','figure'));
 % create a figure one greater than the number of open figures
