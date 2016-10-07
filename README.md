@@ -1,4 +1,4 @@
-# neuroGit - A suite of Matlab software packages for Visual Neuroscience. 
+# neuroGit -  A suite of matlab© packages for visual neuroscience. 
 
 **STIMULUS-DELIVERY**
 ______
@@ -12,15 +12,13 @@ The package supports parallel port triggering on the following computer architec
 **DATA-ANALYSIS**
 _______
 
-<img src=https://github.com/mscaudill/neuroGit/blob/master/data-analysis/ePhys/eExpMaker/ephys.PNG height=200, align="right">
+<img src=https://github.com/mscaudill/neuroGit/blob/master/data-analysis/ePhys/eExpMaker/ephys.PNG height=300, align="right">
 
-**EPHYS:** A lightwieght analysis package for cell-attached and whole-cell
-recordings from single cells. It supports both matlab DAQ and axoclamp ABF
-file types. The gui walks the user through the following processing stages:
-- Data Selection
-- Filtering - included IIR filters are Butterworth, Chebyshev, and Elliptic
+**EPHYS:** An electrophysiology analysis package for cell-attached and whole-cell recordings from single cells. It supports both matlab DAQ and axoclamp ABF file types. The gui walks the user through the following processing stages:
+- Data Selection - supports DAQ and ABF file types
+- Filtering - IIR filters include Butterworth, Chebyshev, and Elliptic
 - Spike detection
-- Results
+- Results 
 
 The package seamlessly integrates with the stimGen visual stimulation
 software by joining individual stimulus trials with their corresponding
@@ -28,6 +26,7 @@ electrophysiology traces. Finally, the package allows for assesment of
 behavior such as running during the trials. This package is free to use
 under a public license. If used please cite this repository.
 
+**CAIMG:** 
 
 
 3. A fluorescent imaging package for motion correction and region of interest intensity analysis. Supports all versions of scan image data acquisition
