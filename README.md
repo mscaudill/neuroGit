@@ -2,9 +2,9 @@
 
 STIMULUS-DELIVERY
 ______
+
+<img src=https://github.com/mscaudill/neuroGit/blob/master/stimulus-delivery/StimGenGui/StimGen.PNG height=300, align="left">
 The stimulus-delivery directory contains a gui (stimGen) and supporting helper functions for generating and drawing visual stimulus to a monitor. The package creates a trials structure containing all the stimulus information for a particular trail specified by the gui inputs provided by the user. The package supports parallel port triggering on the following computer architectures: 32-bit and 64-bit Windows XP and Windows 7 to allow users to engage data acquistions systems with millisecond accuracy. A range of possible stimuli are provided in the stimGenStimuli directory. The framework is modular with expemplary code annotation to aid developers in creating new stimuli.
-<img src=https://github.com/mscaudill/neuroGit/blob/master/stimulus-delivery/StimGenGui/StimGen.PNG height=100, align="center">
- 
 
 
 1. A visual stimulus generation package (stimGen) for drawing a variety of visual stimuli to a monitor.
