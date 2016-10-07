@@ -12,6 +12,8 @@ The package supports parallel port triggering on the following computer architec
 DATA-ANALYSIS
 _______
 
+<img src=https://github.com/mscaudill/neuroGit/blob/master/data-analysis/ePhys/eExpMaker/ephys.PNG height=200, align="right">
+
 *ePhys:* A lightwieght analysis package for cell-attached and whole-cell
 recordings from single cells. It supports both matlab DAQ and axoclamp ABF
 file types. The gui walks the user through the following processing stages:
@@ -19,8 +21,6 @@ file types. The gui walks the user through the following processing stages:
 - Filtering - included IIR filters are Butterworth, Chebyshev, and Elliptic
 - Spike detection
 - Results
-
-<img src=https://github.com/mscaudill/neuroGit/blob/master/data-analysis/ePhys/eExpMaker/ephys.PNG height=200, align="right">
 
 The package works seamlessly integrates with the stimGen visual stimulation
 software by joining individual stimulus trials with their corresponding
