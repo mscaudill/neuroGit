@@ -36,13 +36,13 @@ from the stimGen package with imaging stacks collected using two-photon
 microscopy running scan-image software. The guis and the functionality they
 provide are:
 
+<img src = https://github.com/mscaudill/neuroGit/blob/master/data-analysis/CaIMG/ImExpMakerGui/imExpMaker.PNG height = 200, align="left">
+
 *imExpMaker*
 - Data Selection and Visualization
 - Autodetection of missed triggers
 - Motion Correction
 - Support for separating optogenetic and control trials
-
-<img src = https://github.com/mscaudill/neuroGit/blob/master/data-analysis/CaIMG/ImExpMakerGui/imExpMaker.PNG height = 200, align="left">
 
 *imExpAnalyzer*
 - Data Visualization including video playback
