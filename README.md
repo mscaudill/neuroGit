@@ -15,6 +15,7 @@ _______
 <img src=https://github.com/mscaudill/neuroGit/blob/master/data-analysis/ePhys/eExpMaker/ephys.PNG height=300, align="right">
 
 **EPHYS:** 
+
 An electrophysiology analysis package for cell-attached and whole-cell recordings from single cells. It supports both matlab DAQ and axoclamp ABF file types. The gui walks the user through the following processing stages:
 - Data Selection 
 - Filtering - IIR filters include Butterworth, Chebyshev, and Elliptic
@@ -28,17 +29,31 @@ behavior such as running during the trials. This package is free to use
 under a public license. If used, please cite this repository.
 
 **CAIMG:** 
+CAIMG is an extensive package for calcium indicator response analysis. Two
+guis and supporting helper functions seamlessly integrate visual stimuli
+from the stimGen package with imaging stacks collected using two-photon
+microscopy running scan-image software. The guis and the functionality they
+provide are:
 
-imExpMaker
-- Data Selection - includes filtering by behavior options
+*imExpMaker*
+- Data Selection and Visualization
+- Autodetection of missed triggers
 - Motion Correction
+- Support for separating optogenetic and control trials
 
 <img src = https://github.com/mscaudill/neuroGit/blob/master/data-analysis/CaIMG/ImExpMakerGui/imExpMaker.PNG height = 300, align="left">
 
+**imExpAnalyzer**
+- Region of interest (ROI) selection
+- Fluoresence calculations with neuropil subtraction
+- Support for separating calculations of optogenetic and control trials
 
-imExpAnalyzer
-- Roi Selection
-- Computes percentage change of Fluoresence 
-- Variable neuropil contribution
+After regions of interest have been drawn the analyzer returns the core data
+structure used in all analysis--the signalMap. This is a map container
+object that holds all the stimulus information and the signals for each
+individual roi. This container object makes it easy to carry out further
+calculations on the fluoresence signals from each roi. The package includes
+numerous scripts that demonstrate the interaction with the signal map
+object.
 
 4. An intrinsic imaging package for analyzing hemodynamic flow in response to stimuli. Currently supports only tiff format images
