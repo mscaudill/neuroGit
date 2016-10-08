@@ -33,8 +33,7 @@ imExpMaker
 - Data Selection - includes filtering by behavior options
 - Motion Correction
 
-<img src =
-s://github.com/mscaudill/neuroGit/blob/master/data-analysis/CaIMG/ImExpMakerGui/imExpMaker.PNG height = 300, align="left"
+<img src = https://github.com/mscaudill/neuroGit/blob/master/data-analysis/CaIMG/ImExpMakerGui/imExpMaker.PNG height = 300, align="left">
 
 
 imExpAnalyzer
