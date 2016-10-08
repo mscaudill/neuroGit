@@ -57,6 +57,9 @@ object that holds all the stimulus information and the signals for each
 individual roi. This container object makes it easy to carry out further
 calculations on the fluoresence signals from each roi. The package includes
 numerous scripts that demonstrate the interaction with the signal map
-object.
+object. This package is free to use under a public license. If used, please
+cite this repository.
 
-4. An intrinsic imaging package for analyzing hemodynamic flow in response to stimuli. Currently supports only tiff format images
+**Intrinsic Imaging**
+
+A package for analyzing hemodynamic flow in response to stimuli. Currently supports only tiff format images. 
