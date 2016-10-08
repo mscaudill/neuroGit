@@ -42,7 +42,7 @@ provide are:
 - Motion Correction
 - Support for separating optogenetic and control trials
 
-<img src = https://github.com/mscaudill/neuroGit/blob/master/data-analysis/CaIMG/ImExpMakerGui/imExpMaker.PNG height = 500, align="left">
+<img src = https://github.com/mscaudill/neuroGit/blob/master/data-analysis/CaIMG/ImExpMakerGui/imExpMaker.PNG height = 200, align="left">
 
 *imExpAnalyzer*
 - Data Visualization including video playback
