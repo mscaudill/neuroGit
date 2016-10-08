@@ -15,6 +15,7 @@ _______
 <img src=https://github.com/mscaudill/neuroGit/blob/master/data-analysis/ePhys/eExpMaker/ephys.PNG height=300, align="right">
 
 **EPHYS:** 
+__
 
 An electrophysiology analysis package for cell-attached and whole-cell recordings from single cells. It supports both matlab DAQ and axoclamp ABF file types. The gui walks the user through the following processing stages:
 - Data Selection 
@@ -29,6 +30,7 @@ behavior such as running during the trials. This package is free to use
 under a public license. If used, please cite this repository.
 
 **CAIMG:** 
+__
 CAIMG is an extensive package for calcium indicator response analysis. Two
 guis and supporting helper functions seamlessly integrate visual stimuli
 from the stimGen package with imaging stacks collected using two-photon
@@ -41,9 +43,9 @@ provide are:
 - Motion Correction
 - Support for separating optogenetic and control trials
 
-<img src = https://github.com/mscaudill/neuroGit/blob/master/data-analysis/CaIMG/ImExpMakerGui/imExpMaker.PNG height = 300, align="left">
+<img src = https://github.com/mscaudill/neuroGit/blob/master/data-analysis/CaIMG/ImExpMakerGui/imExpMaker.PNG height = 400, align="left">
 
-**imExpAnalyzer**
+*imExpAnalyzer*
 - Region of interest (ROI) selection
 - Fluoresence calculations with neuropil subtraction
 - Support for separating calculations of optogenetic and control trials
