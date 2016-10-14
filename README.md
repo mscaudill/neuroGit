@@ -28,7 +28,7 @@ collected from multiple hardware channels on Matlab 'DAQ' and Axoclamp
 Digidata devices. The software walks the user through the following 
 processing stages for each hardware channel:
 
-<img src=https://github.com/mscaudill/neuroGit/blob/master/data-analysis/ePhys/eExpMaker/ephys.PNG height=250, align="right">
+<img src=https://github.com/mscaudill/neuroGit/blob/master/data-analysis/ePhys/eExpMaker/ephys.PNG height=300, align="right">
 
 - Data Selection
 - Data Visualization
