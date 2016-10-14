@@ -20,8 +20,6 @@ Further, the package supports parallel port triggering on the following computer
 ## DATA-ANALYSIS
 _______
 
-<img src=https://github.com/mscaudill/neuroGit/blob/master/data-analysis/ePhys/eExpMaker/ephys.PNG height=300, align="right">
-
 **EPHYS:** 
 
 Ephys is an electrophysiology analysis package for cell-attached and 
@@ -30,9 +28,11 @@ collected from multiple hardware channels on Matlab 'DAQ' and Axoclamp
 Digidata devices. The software walks the user through the following 
 processing stages for each hardware channel:
 
+<img src=https://github.com/mscaudill/neuroGit/blob/master/data-analysis/ePhys/eExpMaker/ephys.PNG height=250, align="right">
+
 - Data Selection
 - Data Visualization
-- IIR Filtering_
+- IIR Filtering
  - Butterworth 
  - Chebyshev
  - Elliptic
