@@ -39,6 +39,8 @@ processing stages for each hardware channel:
 - Spike detection
 - Results
 
+
+
 Ephys seamlessly integrates with the stimGen visual stimulation
 software. The stimulus, recorded signals, and analysis results are
 paired and stored using Matlab's structure array data type.
