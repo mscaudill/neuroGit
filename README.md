@@ -5,7 +5,7 @@ This software is free to download and use under a public license. If used, pleas
 ## STIMULUS-DELIVERY
 ______
 
-** STIMGEN: **
+**STIMGEN:**
 
 StimGen is a visual stimulation package capable of drawing
 complex visual stimuli to a set of monitors with millisecond timing
@@ -15,7 +15,7 @@ be tagged with a user specified name to facilitate data processing.
 
 <img src=https://github.com/mscaudill/neuroGit/blob/master/stimulus-delivery/StimGenGui/StimGen.PNG height=250, align="left">
 
-Further, the package supports parallel port triggering on the following computer architectures: 32-bit and 64-bit Windows XP and Windows 7. This allows users to initiate a cascade of data acquistions sequences with millisecond timing accuracy. A range of possible stimuli are provided in the stimGenStimuli directory. These stimuli are modular and feature  expemplary code annotation to aiddevelopers in creating new stimuli.
+Further, the package supports parallel port triggering on the following computer architectures: 32-bit and 64-bit Windows XP and Windows 7. This allows users to initiate a cascade of data acquistions sequences with millisecond timing accuracy. A range of possible stimuli are provided in the stimGenStimuli directory. These stimuli are modular and feature  expemplary code annotation to aid developers in creating new stimuli.
 
 ## DATA-ANALYSIS
 _______
