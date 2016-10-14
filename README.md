@@ -24,11 +24,15 @@ _______
 
 **EPHYS:** 
 
-Ephys is an electrophysiology analysis package for cell-attached and whole-cell recordings from single cells. It supports both Matlab DAQ and Axoclamp ABF file types. The software walks the user through the following processing stages:
+Ephys is an electrophysiology analysis package for cell-attached and 
+whole-cell recordings from single cells recorded in-vivo. It supports data 
+collected from multiple hardware channels on Matlab 'DAQ' and Axoclamp 
+Digidata devices. The software walks the user through the following 
+processing stages for each hardware channel:
+
 - Data Selection
 - Data Visualization
-- IIR Filtering
-__
+- IIR Filtering_
  - Butterworth 
  - Chebyshev
  - Elliptic
@@ -36,12 +40,11 @@ __
 - Results
 
 Ephys seamlessly integrates with the stimGen visual stimulation
-software, joining individual stimulus trials with their corresponding
-electrophysiology traces. Further, Ephys can accept multiple
-hardware channel inputs from matlab and axoclamp data acqutitions devices.
-This feature allows users to greatly expand Ephys processing capabilities
-by allowing users to sort electrophysiology trials according to various
-behavior and physiology signals.
+software. The stimulus, recorded signals, and analysis results are
+paired and stored using Matlab's structure array data type.
+The multi-channel support feature allows users to greatly expand Ephys
+processing capabilitiesby allowing users to sort electrophysiology trials 
+according to various behavior and physiology signals.
 
 **CAIMG:** 
 
