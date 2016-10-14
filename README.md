@@ -24,15 +24,15 @@ _______
 
 **EPHYS:** 
 
-An electrophysiology analysis package for cell-attached and whole-cell recordings from single cells. It supports both matlab DAQ and axoclamp ABF file types. The gui walks the user through the following processing stages:
+Ephys is an electrophysiology analysis package for cell-attached and whole-cell recordings from single cells. It supports both matlab DAQ and axoclamp ABF file types. The software walks the user through the following processing stages:
 - Data Selection 
-- Filtering - 
-- - IIR filters 
-- - Butterworth 
-- - Chebyshev
-- - Elliptic
+- IIR filtering 
+ - Butterworth 
+ - Chebyshev
+ - Elliptic
 - Spike detection
-- Results 
+- Results
+
 Ephys seamlessly integrates with the stimGen visual stimulation
 software, joining individual stimulus trials with their corresponding
 electrophysiology traces. Further, Ephys can accept multiple
@@ -55,7 +55,8 @@ provide are:
 - Data Selection and Visualization
 - Autodetection of missed triggers
 - Motion Correction
-- Support for separating optogenetic and control trials
+- Supports separating optogenetic & control trials
+- Supports non-imaging data collected from Matlab 'DAQ' or Axoclamp hardware channels.  
 
 *imExpAnalyzer*
 - Data Visualization including video playback
@@ -63,15 +64,14 @@ provide are:
 - Tagging of neuron type
 - Fluoresence calculations with neuropil subtraction
 - Support for separating calculations of optogenetic and control trials
+- Supports seperating trials based on behavior and physiology from hardware
+  signals
 
-After regions of interest have been drawn the analyzer returns the core data
-structure used in all analysis--the signalMap. This is a map container
-object that holds all the stimulus information and the signals for each
-individual roi. This container object makes it easy to carry out further
-calculations on the fluoresence signals from each roi. The package includes
-numerous scripts that demonstrate the interaction with the signal map
-object. This package is free to use under a public license. If used, please
-cite this repository.
+CaImg utilizes Matlab's abstract map container object to store  all the 
+stimulus information and the signals for each individual roi. This container 
+object makes it easy to carry out further calculations on the fluoresence 
+signals from each roi. The package includes numerous scripts that demonstrate
+the interaction with the signal map object.
 
 **Intrinsic Imaging**
 
