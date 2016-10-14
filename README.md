@@ -24,9 +24,11 @@ _______
 
 **EPHYS:** 
 
-Ephys is an electrophysiology analysis package for cell-attached and whole-cell recordings from single cells. It supports both matlab DAQ and axoclamp ABF file types. The software walks the user through the following processing stages:
-- Data Selection 
-- IIR filtering 
+Ephys is an electrophysiology analysis package for cell-attached and whole-cell recordings from single cells. It supports both Matlab DAQ and Axoclamp ABF file types. The software walks the user through the following processing stages:
+- Data Selection
+- Data Visualization
+- IIR Filtering
+__
  - Butterworth 
  - Chebyshev
  - Elliptic
