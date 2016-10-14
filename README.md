@@ -36,7 +36,7 @@ Ephys is an electrophysiology analysis package for cell-attached and whole-cell 
 Ephys seamlessly integrates with the stimGen visual stimulation
 software, joining individual stimulus trials with their corresponding
 electrophysiology traces. Further, Ephys can accept multiple
-hardware cahnnel inputs from matlab and axoclamp data acqutitions devices.
+hardware channel inputs from matlab and axoclamp data acqutitions devices.
 This feature allows users to greatly expand Ephys processing capabilities
 by allowing users to sort electrophysiology trials according to various
 behavior and physiology signals.
@@ -64,7 +64,7 @@ provide are:
 - Tagging of neuron type
 - Fluoresence calculations with neuropil subtraction
 - Support for separating calculations of optogenetic and control trials
-- Supports seperating trials based on behavior and physiology from hardware
+- Supports separating trials based on behavior and physiology from hardware
   signals
 
 CaImg utilizes Matlab's abstract map container object to store  all the 
@@ -78,6 +78,6 @@ the interaction with the signal map object.
 A package for analyzing hemodynamic flow in response to stimuli. Currently supports only tiff format images.
 
 ## DEPENDENCIES:
-__
-Windows XP and greater.
-Matlab version 2013a or greater.
+
+- Windows XP and greater.
+- Matlab version 2013a or greater.
